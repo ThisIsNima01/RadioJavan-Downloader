@@ -76,7 +76,7 @@ class _MusicItemState extends State<MusicItem> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     width: 160,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -106,6 +106,9 @@ class _MusicItemState extends State<MusicItem> {
                   if (!isDownloaded && !isDownloading) ...{
                     GestureDetector(
                         onTap: () async {
+                          await Permission.storage.request().isGranted;
+                          await Permission.videos.request().isGranted;
+
                           setState(() {
                             isDownloading = true;
                           });
@@ -136,7 +139,7 @@ class _MusicItemState extends State<MusicItem> {
                       progressColor: Colors.red,
                       backgroundColor: Colors.red.withOpacity(0.3),
                       percent: progressPercent,
-                      center: Text('${progressText}%'),
+                      center: Text('${progressText}%',style: TextStyle(fontSize: 12),),
                     )
                   },
                   if (isDownloaded) ...{

@@ -4,17 +4,21 @@
     <!-- Android 12 or below  -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
-    android:maxSdkVersion="32" />
+    android:maxSdkVersion="32"
+        tools:targetApi="donut" />
 
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-    android:maxSdkVersion="29" />
+    android:maxSdkVersion="29"
+        tools:targetApi="donut" />
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <!-- Android 13 or greater  -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
+
+
 
    <application
         android:label="RJ Downloader"

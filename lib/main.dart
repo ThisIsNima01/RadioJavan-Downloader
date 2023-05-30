@@ -58,19 +58,20 @@ class _MyAppState extends State<MyApp> {
                       children: [
                         Expanded(
                           child: Card(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16)),
                             elevation: 10,
                             child: Container(
                               decoration: BoxDecoration(),
-                              padding: EdgeInsets.symmetric(horizontal: 12,vertical: 6),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
                               child: TextField(
                                 controller: textEditingController,
                                 decoration: const InputDecoration(
-                                  enabledBorder: InputBorder.none,
-                                     focusedBorder: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
                                     hintStyle: TextStyle(fontSize: 14),
-                                    hintText:
-                                        'Enter Music Or Artist Name'),
+                                    hintText: 'Enter Music Or Artist Name'),
                               ),
                             ),
                           ),
@@ -80,6 +81,7 @@ class _MyAppState extends State<MyApp> {
                         ),
                         ElevatedButton(
                           onPressed: () async {
+                            musicListProvider.musicList = [];
                             setState(() {
                               isLoading = true;
                             });
@@ -96,9 +98,20 @@ class _MyAppState extends State<MyApp> {
                       ],
                     ),
                   ),
-                  Visibility(
-                    visible: !isLoading,
-                    child: Expanded(
+                  if (musicListProvider.musicList.isNotEmpty) ...[
+                    Row(
+                      children: [
+                        SizedBox(width: 24,),
+                        Text(
+                          'Your Music Search',
+                          // textAlign: TextAlign.left,
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Expanded(
                       child: ListView.builder(
                         itemCount: musicListProvider.musicList.length,
                         itemBuilder: (context, index) => MusicItem(
@@ -106,8 +119,20 @@ class _MyAppState extends State<MyApp> {
                           music: musicListProvider.musicList[index],
                         ),
                       ),
-                    ),
-                  ),
+                    )
+                  ],
+                  // Visibility(
+                  //   visible: !isLoading,
+                  //   child: Expanded(
+                  //     child: ListView.builder(
+                  //       itemCount: musicListProvider.musicList.length,
+                  //       itemBuilder: (context, index) => MusicItem(
+                  //         primaryColor: primaryColor,
+                  //         music: musicListProvider.musicList[index],
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                   Visibility(
                     visible: isLoading,
                     child: const Expanded(

@@ -30,20 +30,34 @@ class Utils {
 
   static downloadMusic(
       Music music, Function(int count, int total) onReceiveProgress) async {
-    // if (music.hqLink.isNotEmpty) {
-    //
-    // }
+    var status = await Permission.storage.status;
+    if (!status.isGranted) {
+      await Permission.storage.request();
+    }
     await ApiService.dio.download(
-      music.hqLink != null ? music.hqLink! : music.link!,
+      getMediaFormat(music) == 'video' ? music.hqLink! : music.link!,
       '/storage/emulated/0/Music/rj/${music.artist} - ${music.song}${getMediaFormat(music)}',
       onReceiveProgress: (count, total) {
         onReceiveProgress(count, total);
       },
     );
 
-    Utils.scanNewMedia();
+    scanNewMedia();
   }
 
   static String getMediaFormat(Music music) =>
       music.type == 'video' ? '.mp4' : '.mp3';
+
+  static requestStoragePermission() async {
+    var status = await Permission.storage.request();
+
+    if (status.isGranted) {
+      // Permission granted, you can proceed with file operations
+    } else if (status.isDenied) {
+      // Permission denied
+    } else if (status.isPermanentlyDenied) {
+      // Permission permanently denied, open app settings
+      openAppSettings();
+    }
+  }
 }
