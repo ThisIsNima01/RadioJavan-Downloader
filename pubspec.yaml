@@ -42,6 +42,8 @@ dependencies:
   percent_indicator: ^4.2.3
   cached_network_image: ^3.2.3
   provider: ^6.0.5
+  open_file: ^3.3.1
+  skeletons: ^0.0.3
 
 dev_dependencies:
   flutter_test:

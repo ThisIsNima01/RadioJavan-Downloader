@@ -5,9 +5,11 @@ class Music {
   String? artist;
   String? song;
   String? type;
+  String? hqLink;
+  String? hdLink;
 
   Music(
-      this.link, this.photo, this.thumbnail, this.artist, this.song, this.type);
+      this.link, this.photo, this.thumbnail, this.artist, this.song, this.type,this.hqLink,this.hdLink);
 
   factory Music.fromJson(Map<String, dynamic> jsonMapObject) {
     return Music(
@@ -17,6 +19,8 @@ class Music {
       jsonMapObject['artist'],
       jsonMapObject['song'],
       jsonMapObject['type'],
+      jsonMapObject['hq_link'],
+      jsonMapObject['hd_link'],
     );
   }
 }
