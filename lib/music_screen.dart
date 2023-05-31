@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:open_file/open_file.dart';
@@ -6,14 +7,16 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:rj_downloader/config/global/utils/utils.dart';
+import 'package:rj_downloader/download_notification.dart';
 import 'package:rj_downloader/media.dart';
 import 'package:rj_downloader/music_state_provider.dart';
-import 'models/music.dart';
 
 class MusicScreen extends StatefulWidget {
   Media media;
+  Function() onDownloadComplete;
 
-  MusicScreen({Key? key, required this.media}) : super(key: key);
+  MusicScreen({Key? key, required this.media, required this.onDownloadComplete})
+      : super(key: key);
 
   @override
   State<MusicScreen> createState() => _MusicScreenState();
@@ -23,14 +26,9 @@ class _MusicScreenState extends State<MusicScreen> {
   Color primaryColor = Color(0xffE21221);
 
   @override
-  void initState() {
-    print(widget.media.artist);
-
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    DownloadFinished(true).dispatch(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Download Music'),
@@ -68,6 +66,7 @@ class _MusicScreenState extends State<MusicScreen> {
                     musicState: value,
                     media: widget.media,
                     mediaType: '.mp3',
+                    onDownloadComplete: widget.onDownloadComplete,
                   ),
                 ),
               ),
@@ -79,6 +78,7 @@ class _MusicScreenState extends State<MusicScreen> {
                       musicState: value,
                       media: widget.media,
                       mediaType: '.mp4',
+                      onDownloadComplete: widget.onDownloadComplete,
                     ),
                   ),
                 ),
@@ -95,12 +95,14 @@ class OptionGenerator extends StatefulWidget {
   Media media;
   MusicStateProvider musicState;
   String mediaType;
+  Function() onDownloadComplete;
 
   OptionGenerator(
       {Key? key,
       required this.media,
       required this.musicState,
-      required this.mediaType})
+      required this.mediaType,
+      required this.onDownloadComplete})
       : super(key: key);
 
   @override
@@ -108,6 +110,8 @@ class OptionGenerator extends StatefulWidget {
 }
 
 class _OptionGeneratorState extends State<OptionGenerator> {
+  CancelToken cancelToken = CancelToken();
+
   @override
   void initState() {
     // print('${widget.media.song} ${widget.media.artist} ${widget.music.type}');
@@ -135,20 +139,53 @@ class _OptionGeneratorState extends State<OptionGenerator> {
         },
         if (!widget.musicState.isDownloaded &&
             !widget.musicState.isDownloading) ...{
-          DownloadButton(media: widget.media, provider: widget.musicState,mediaType: widget.mediaType,),
+          DownloadButton(
+              media: widget.media,
+              provider: widget.musicState,
+              mediaType: widget.mediaType,
+              cancelToken: cancelToken,onDownloadComplete: widget.onDownloadComplete),
         },
         if (widget.musicState.isDownloading) ...{
-          CircularPercentIndicator(
-            radius: 20,
-            lineWidth: 5,
-            progressColor: Colors.red,
-            backgroundColor: Colors.red.withOpacity(0.3),
-            percent: widget.musicState.progressPercent,
-            center: Text('${widget.musicState.progressText}%'),
-          ),
+          DownloadProgressBar(widget: widget, cancelToken: cancelToken),
         },
       ],
     );
+  }
+}
+
+class DownloadProgressBar extends StatefulWidget {
+  DownloadProgressBar({
+    super.key,
+    required this.widget,
+    required this.cancelToken,
+  });
+
+  OptionGenerator widget;
+  CancelToken cancelToken;
+
+  @override
+  State<DownloadProgressBar> createState() => _DownloadProgressBarState();
+}
+
+class _DownloadProgressBarState extends State<DownloadProgressBar> {
+  @override
+  Widget build(BuildContext context) {
+    return CircularPercentIndicator(
+      radius: 20,
+      lineWidth: 5,
+      progressColor: Colors.red,
+      backgroundColor: Colors.red.withOpacity(0.3),
+      percent: widget.widget.musicState.progressPercent,
+      center: Text('${widget.widget.musicState.progressText}%'),
+    );
+  }
+
+  @override
+  void dispose() {
+    if (!widget.widget.musicState.isDownloaded) {
+      widget.cancelToken.cancel('Quited While Downloading');
+    }
+    super.dispose();
   }
 }
 
@@ -197,12 +234,15 @@ class DownloadButton extends StatelessWidget {
   Media media;
   MusicStateProvider provider;
   String mediaType;
+  CancelToken cancelToken;
+  Function() onDownloadComplete;
 
   DownloadButton(
       {Key? key,
       required this.media,
       required this.provider,
-      required this.mediaType})
+      required this.mediaType,
+      required this.cancelToken, required this.onDownloadComplete})
       : super(key: key);
 
   @override
@@ -219,10 +259,11 @@ class DownloadButton extends StatelessWidget {
           provider.progressPercent = (count / total);
 
           if (count == total) {
+            onDownloadComplete();
             provider.isDownloaded = true;
             provider.isDownloading = false;
           }
-        }, mediaType);
+        }, mediaType, cancelToken);
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -232,8 +273,9 @@ class DownloadButton extends StatelessWidget {
         child: Center(
           child: Row(
             children: [
-              Icon(Iconsax.document_download, color: Colors.white, size: 20),
-              SizedBox(
+              const Icon(Iconsax.document_download,
+                  color: Colors.white, size: 20),
+              const SizedBox(
                 width: 8,
               ),
               Text(

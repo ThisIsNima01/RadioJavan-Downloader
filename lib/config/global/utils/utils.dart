@@ -1,10 +1,10 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rj_downloader/media.dart';
 
-import '../../../models/music.dart';
 import '../../services/remote/api_service.dart';
 
 class Utils {
@@ -30,19 +30,18 @@ class Utils {
   }
 
   static downloadMusic(
-      Media media, Function(int count, int total) onReceiveProgress, String mediaType) async {
+      Media media, Function(int count, int total) onReceiveProgress, String mediaType, CancelToken cancelToken) async {
     var status = await Permission.storage.status;
     if (!status.isGranted) {
       await Permission.storage.request();
     }
-    // String downloadLink = getMediaFormat(music) == 'video' ? music.hqLink! : music.link!;
-    // print(downloadLink);
+
     await ApiService.dio.download(
       mediaType == '.mp4' ? media.videoLink! : media.audioLink!,
       '/storage/emulated/0/Music/rj/${media.artist} - ${media.song}$mediaType',
       onReceiveProgress: (count, total) {
         onReceiveProgress(count, total);
-      },
+      },cancelToken: cancelToken,deleteOnError: true,
     );
 
     scanNewMedia();

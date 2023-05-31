@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:rj_downloader/download_notification.dart';
 import 'package:rj_downloader/media.dart';
 import 'package:rj_downloader/music_screen.dart';
 import 'package:skeletons/skeletons.dart';
 
 import '../config/global/utils/utils.dart';
-import '../models/music.dart';
 
 class MusicItem extends StatefulWidget {
   Media media;
@@ -25,10 +25,10 @@ class MusicItem extends StatefulWidget {
 class _MusicItemState extends State<MusicItem> {
   bool isAudioDownloaded = false;
   bool isVideoDownloaded = false;
+
   @override
   void initState() {
-    Utils.checkIfFileExistsAlready(widget.media, '.mp3')
-        .then((result) {
+    Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
       setState(() {
         if (result) {
           isAudioDownloaded = true;
@@ -36,8 +36,7 @@ class _MusicItemState extends State<MusicItem> {
       });
     });
 
-    Utils.checkIfFileExistsAlready(widget.media, '.mp4')
-        .then((result) {
+    Utils.checkIfFileExistsAlready(widget.media, '.mp4').then((result) {
       setState(() {
         if (result) {
           isVideoDownloaded = true;
@@ -59,9 +58,27 @@ class _MusicItemState extends State<MusicItem> {
         }
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => MusicScreen(
-              media: widget.media,
-            ),
+            builder: (context) =>
+                MusicScreen(
+                  media: widget.media,
+                  onDownloadComplete:() {
+                    Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
+                      setState(() {
+                        if (result) {
+                          isAudioDownloaded = true;
+                        }
+                      });
+                    });
+
+                    Utils.checkIfFileExistsAlready(widget.media, '.mp4').then((result) {
+                      setState(() {
+                        if (result) {
+                          isVideoDownloaded = true;
+                        }
+                      });
+                    });
+                  },
+                ),
           ),
         );
       },
@@ -90,8 +107,8 @@ class _MusicItemState extends State<MusicItem> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10),
                         child: CachedNetworkImage(
-                          width: 74,
-                          height: 74,
+                          width: 72,
+                          height: 72,
                           fit: BoxFit.cover,
                           placeholder: (context, url) => SkeletonAvatar(),
                           imageUrl: widget.media.photo,
@@ -112,7 +129,8 @@ class _MusicItemState extends State<MusicItem> {
                             widget.media.song ?? 'f',
                             maxLines: 1,
                             style: const TextStyle(
-                                fontSize: 16, overflow: TextOverflow.ellipsis),
+                                fontSize: 16,
+                                overflow: TextOverflow.ellipsis),
                           ),
                           const SizedBox(
                             height: 6,
@@ -141,7 +159,6 @@ class _MusicItemState extends State<MusicItem> {
               child: Card(
                 elevation: 10,
                 color: isAudioDownloaded ? Colors.green : Colors.white,
-
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -152,7 +169,6 @@ class _MusicItemState extends State<MusicItem> {
                     Iconsax.music,
                     size: 20,
                     color: isAudioDownloaded ? Colors.white : Colors.black,
-
                   ),
                 ),
               ),
@@ -168,7 +184,6 @@ class _MusicItemState extends State<MusicItem> {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Container(
-
                   width: 32,
                   height: 32,
                   child: Icon(

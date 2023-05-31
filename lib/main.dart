@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:rj_downloader/config/global/utils/utils.dart';
 import 'package:rj_downloader/config/services/remote/api_service.dart';
+import 'package:rj_downloader/download_notification.dart';
 import 'package:rj_downloader/models/music.dart';
 import 'package:rj_downloader/music_list_provider.dart';
 import 'package:rj_downloader/widgets/music_item.dart';
@@ -31,8 +32,23 @@ class _MyAppState extends State<MyApp> {
   ApiService apiService = ApiService();
   List<Media> mediaList = [];
   bool isLoading = false;
+  FocusNode searchFocusNode = FocusNode();
 
   Color primaryColor = Color(0xffE21221);
+
+  @override
+  void initState() {
+    searchFocusNode.addListener(() {
+      setState(() {});
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    searchFocusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +61,7 @@ class _MyAppState extends State<MyApp> {
               Scaffold(
             appBar: AppBar(
                 backgroundColor: primaryColor,
-                title: Text('Radio Javan Downlaoder')),
+                title: Text('Radio Javan Downlaoder',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),)),
             backgroundColor: Color(0xffEEEEEE),
             body: SafeArea(
               child: Column(
@@ -63,11 +79,21 @@ class _MyAppState extends State<MyApp> {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16)),
                             elevation: 10,
-                            child: Container(
-                              decoration: BoxDecoration(),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 500),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: searchFocusNode.hasFocus
+                                      ? primaryColor
+                                      : Colors.white,
+                                  width: 2,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 2),
                               child: TextField(
+                                focusNode: searchFocusNode,
                                 controller: textEditingController,
                                 decoration: const InputDecoration(
                                     enabledBorder: InputBorder.none,
@@ -104,19 +130,24 @@ class _MyAppState extends State<MyApp> {
                                         element.song == music.song)
                                     .toList()
                                     .isEmpty) {
-                                  mediaList.add(
-                                    Media(
-                                        artist: music.artist,
-                                        song: music.song,
-                                        photo: music.photo,
-                                        audioLink: music.link,audioFormat: music.type),
-                                  );
+                                  if (music.type != 'video') {
+                                    mediaList.add(
+                                      Media(
+                                          artist: music.artist,
+                                          song: music.song,
+                                          photo: music.photo,
+                                          audioLink: music.link,
+                                          audioFormat: music.type),
+                                    );
+                                  }
                                 } else {
                                   if (music.type == 'video') {
-                                    int itemIndex = mediaList.indexWhere((item) => item.artist == music.artist && item.song == music.song);
+                                    int itemIndex = mediaList.indexWhere(
+                                        (item) =>
+                                            item.artist == music.artist &&
+                                            item.song == music.song);
                                     mediaList[itemIndex].videoLink = music.link;
                                     mediaList[itemIndex].videoFormat = 'm3u';
-
                                   }
                                 }
                               }
@@ -149,7 +180,6 @@ class _MyAppState extends State<MyApp> {
                               .toList()
                               .length,
                           itemBuilder: (context, index) {
-
                             return MusicItem(
                               media: mediaList[index],
                             );
@@ -158,9 +188,18 @@ class _MyAppState extends State<MyApp> {
                   ],
                   Visibility(
                     visible: isLoading,
-                    child: const Expanded(
-                      child: Center(
-                        child: CircularProgressIndicator(),
+                    child: Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text('Getting Music List...')
+                        ],
                       ),
                     ),
                   ),
