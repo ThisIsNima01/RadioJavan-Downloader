@@ -6,15 +6,14 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:rj_downloader/config/global/utils/utils.dart';
+import 'package:rj_downloader/media.dart';
 import 'package:rj_downloader/music_state_provider.dart';
 import 'models/music.dart';
 
 class MusicScreen extends StatefulWidget {
-  Music music;
-  List<Music> mediaList;
+  Media media;
 
-  MusicScreen({Key? key, required this.music, required this.mediaList})
-      : super(key: key);
+  MusicScreen({Key? key, required this.media}) : super(key: key);
 
   @override
   State<MusicScreen> createState() => _MusicScreenState();
@@ -23,11 +22,20 @@ class MusicScreen extends StatefulWidget {
 class _MusicScreenState extends State<MusicScreen> {
   Color primaryColor = Color(0xffE21221);
 
+  @override
+  void initState() {
+    print(widget.media.artist);
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Download Music'),backgroundColor: primaryColor,),
+      appBar: AppBar(
+        title: Text('Download Music'),
+        backgroundColor: primaryColor,
+      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -42,7 +50,7 @@ class _MusicScreenState extends State<MusicScreen> {
                   borderRadius: BorderRadius.circular(30),
                   image: DecorationImage(
                     fit: BoxFit.cover,
-                    image: CachedNetworkImageProvider(widget.music.photo),
+                    image: CachedNetworkImageProvider(widget.media.photo),
                   ),
                 ),
               ),
@@ -53,15 +61,28 @@ class _MusicScreenState extends State<MusicScreen> {
           ),
           Row(
             children: [
-              for (var music in widget.mediaList) ...[
+              ChangeNotifierProvider(
+                create: (context) => MusicStateProvider(),
+                builder: (context, child) => Consumer<MusicStateProvider>(
+                  builder: (context, value, child) => OptionGenerator(
+                    musicState: value,
+                    media: widget.media,
+                    mediaType: '.mp3',
+                  ),
+                ),
+              ),
+              if (widget.media.videoLink != null) ...{
                 ChangeNotifierProvider(
                   create: (context) => MusicStateProvider(),
                   builder: (context, child) => Consumer<MusicStateProvider>(
-                    builder: (context, value, child) =>
-                        OptionGenerator(music: music),
+                    builder: (context, value, child) => OptionGenerator(
+                      musicState: value,
+                      media: widget.media,
+                      mediaType: '.mp4',
+                    ),
                   ),
-                )
-              ],
+                ),
+              },
             ],
           )
         ],
@@ -71,26 +92,31 @@ class _MusicScreenState extends State<MusicScreen> {
 }
 
 class OptionGenerator extends StatefulWidget {
-  Music music;
+  Media media;
+  MusicStateProvider musicState;
+  String mediaType;
 
-  OptionGenerator({Key? key, required this.music}) : super(key: key);
+  OptionGenerator(
+      {Key? key,
+      required this.media,
+      required this.musicState,
+      required this.mediaType})
+      : super(key: key);
 
   @override
   State<OptionGenerator> createState() => _OptionGeneratorState();
 }
 
 class _OptionGeneratorState extends State<OptionGenerator> {
-  late MusicStateProvider musicState;
-
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      musicState = Provider.of<MusicStateProvider>(context, listen: false);
-    });
-    Utils.checkIfFileExistsAlready(widget.music).then((result) {
+    // print('${widget.media.song} ${widget.media.artist} ${widget.music.type}');
+
+    Utils.checkIfFileExistsAlready(widget.media, widget.mediaType)
+        .then((result) {
       setState(() {
         if (result) {
-          musicState.isDownloaded = true;
+          widget.musicState.isDownloaded = true;
         }
       });
     });
@@ -101,22 +127,24 @@ class _OptionGeneratorState extends State<OptionGenerator> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        if (musicState.isDownloaded) ...{
+        if (widget.musicState.isDownloaded) ...{
           PlayButton(
-            music: widget.music,
+            mediaType: widget.mediaType,
+            media: widget.media,
           )
         },
-        if (!musicState.isDownloaded && !musicState.isDownloading) ... {
-          DownloadButton(music: widget.music,provider: musicState),
+        if (!widget.musicState.isDownloaded &&
+            !widget.musicState.isDownloading) ...{
+          DownloadButton(media: widget.media, provider: widget.musicState,mediaType: widget.mediaType,),
         },
-        if (musicState.isDownloading) ...{
+        if (widget.musicState.isDownloading) ...{
           CircularPercentIndicator(
             radius: 20,
             lineWidth: 5,
             progressColor: Colors.red,
             backgroundColor: Colors.red.withOpacity(0.3),
-            percent: musicState.progressPercent,
-            center: Text('${musicState.progressText}%'),
+            percent: widget.musicState.progressPercent,
+            center: Text('${widget.musicState.progressText}%'),
           ),
         },
       ],
@@ -125,9 +153,11 @@ class _OptionGeneratorState extends State<OptionGenerator> {
 }
 
 class PlayButton extends StatelessWidget {
-  Music music;
+  Media media;
+  String mediaType;
 
-  PlayButton({Key? key, required this.music}) : super(key: key);
+  PlayButton({Key? key, required this.media, required this.mediaType})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -135,24 +165,24 @@ class PlayButton extends StatelessWidget {
       onTap: () async {
         if (await Permission.audio.request().isGranted) {
           await OpenFile.open(
-              '/storage/emulated/0/Music/rj/${music.artist} - ${music.song}${Utils.getMediaFormat(music)}');
+              '/storage/emulated/0/Music/rj/${media.artist} - ${media.song}$mediaType');
         }
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         margin: const EdgeInsets.only(left: 20),
         decoration: BoxDecoration(
             color: Colors.red, borderRadius: BorderRadius.circular(14)),
         child: Center(
           child: Row(
             children: [
-              Icon(music.type == 'video' ? Iconsax.video : Iconsax.music,
+              Icon(mediaType == '.mp4' ? Iconsax.video : Iconsax.music,
                   color: Colors.white, size: 20),
               SizedBox(
                 width: 8,
               ),
               Text(
-                'Play ${music.type}',
+                'Play ${mediaType == '.mp4' ? 'Video' : 'Music'}',
                 style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
             ],
@@ -164,14 +194,16 @@ class PlayButton extends StatelessWidget {
 }
 
 class DownloadButton extends StatelessWidget {
-  Music music;
+  Media media;
   MusicStateProvider provider;
+  String mediaType;
 
-  DownloadButton({
-    Key? key,
-    required this.music,
-    required this.provider,
-  }) : super(key: key);
+  DownloadButton(
+      {Key? key,
+      required this.media,
+      required this.provider,
+      required this.mediaType})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -179,29 +211,18 @@ class DownloadButton extends StatelessWidget {
       onTap: () async {
         await Permission.storage.request().isGranted;
         await Permission.videos.request().isGranted;
+
         provider.isDownloading = true;
-        // setState(() {
-        //   isDownloading = true;
-        // });
-        await Utils.downloadMusic(music, (count, total) {
+
+        await Utils.downloadMusic(media, (count, total) {
           provider.progressText = ((count / total) * 100).toStringAsFixed(0);
           provider.progressPercent = (count / total);
-          // setState(() {
-          //   progressText = ((count / total) * 100).toStringAsFixed(0);
-          //   progressPercent = (count / total);
-          // });
 
           if (count == total) {
-            // setState(() {
-            //   isDownloaded = true;
-            // });
             provider.isDownloaded = true;
             provider.isDownloading = false;
           }
-        });
-        // setState(() {
-        //   isDownloading = false;
-        // });
+        }, mediaType);
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -216,7 +237,7 @@ class DownloadButton extends StatelessWidget {
                 width: 8,
               ),
               Text(
-                'Download ${music.type}',
+                'Download ${mediaType == '.mp4' ? 'Video' : 'Music'}',
                 style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
             ],

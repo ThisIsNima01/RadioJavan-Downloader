@@ -3,9 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:open_file/open_file.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:rj_downloader/media.dart';
 import 'package:rj_downloader/music_screen.dart';
 import 'package:skeletons/skeletons.dart';
 
@@ -13,27 +11,42 @@ import '../config/global/utils/utils.dart';
 import '../models/music.dart';
 
 class MusicItem extends StatefulWidget {
-  Music music;
-  List<Music> mediaList;
+  Media media;
 
-  MusicItem(
-      {super.key,
-      required this.music,
-      required this.mediaList,});
-
+  MusicItem({
+    super.key,
+    required this.media,
+  });
 
   @override
   State<MusicItem> createState() => _MusicItemState();
 }
 
 class _MusicItemState extends State<MusicItem> {
-
+  bool isAudioDownloaded = false;
+  bool isVideoDownloaded = false;
   @override
   void initState() {
+    Utils.checkIfFileExistsAlready(widget.media, '.mp3')
+        .then((result) {
+      setState(() {
+        if (result) {
+          isAudioDownloaded = true;
+        }
+      });
+    });
+
+    Utils.checkIfFileExistsAlready(widget.media, '.mp4')
+        .then((result) {
+      setState(() {
+        if (result) {
+          isVideoDownloaded = true;
+        }
+      });
+    });
     super.initState();
-
-
   }
+
   Color primaryColor = Color(0xffE21221);
 
   @override
@@ -46,7 +59,9 @@ class _MusicItemState extends State<MusicItem> {
         }
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => MusicScreen(music: widget.music,mediaList: widget.mediaList),
+            builder: (context) => MusicScreen(
+              media: widget.media,
+            ),
           ),
         );
       },
@@ -79,7 +94,7 @@ class _MusicItemState extends State<MusicItem> {
                           height: 74,
                           fit: BoxFit.cover,
                           placeholder: (context, url) => SkeletonAvatar(),
-                          imageUrl: widget.music.photo,
+                          imageUrl: widget.media.photo,
                         ),
                       ),
                     ),
@@ -94,7 +109,7 @@ class _MusicItemState extends State<MusicItem> {
                             height: 16,
                           ),
                           Text(
-                            widget.music.song ?? 'f',
+                            widget.media.song ?? 'f',
                             maxLines: 1,
                             style: const TextStyle(
                                 fontSize: 16, overflow: TextOverflow.ellipsis),
@@ -103,7 +118,7 @@ class _MusicItemState extends State<MusicItem> {
                             height: 6,
                           ),
                           Text(
-                            widget.music.artist,
+                            widget.media.artist,
                             maxLines: 1,
                             style: TextStyle(fontSize: 12),
                           ),
@@ -120,42 +135,51 @@ class _MusicItemState extends State<MusicItem> {
               ),
             ),
           ),
-          for (var music in widget.mediaList) ... [
-            if (music.type == 'mp3') ... {
-              Positioned(
-                right: 22,
-                child: Card(
-                  elevation: 10,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Container(
-                    width: 34,
-                    height: 34,
-                    child: Icon(Iconsax.music),
+          if (widget.media.audioLink != null) ...{
+            Positioned(
+              right: 24,
+              child: Card(
+                elevation: 10,
+                color: isAudioDownloaded ? Colors.green : Colors.white,
+
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  child: Icon(
+                    Iconsax.music,
+                    size: 20,
+                    color: isAudioDownloaded ? Colors.white : Colors.black,
+
                   ),
                 ),
               ),
-            },
+            ),
+          },
+          if (widget.media.videoLink != null) ...{
+            Positioned(
+              right: 68,
+              child: Card(
+                elevation: 10,
+                color: isVideoDownloaded ? Colors.green : Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Container(
 
-            if (music.type == 'video') ... {
-              Positioned(
-                right: 66,
-                child: Card(
-                  elevation: 10,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Container(
-                    width: 34,
-                    height: 34,
-                    child: Icon(Iconsax.video),
+                  width: 32,
+                  height: 32,
+                  child: Icon(
+                    Iconsax.video,
+                    size: 22,
+                    color: isVideoDownloaded ? Colors.white : Colors.black,
                   ),
                 ),
               ),
-            },
-          ],
-
+            ),
+          },
         ],
       ),
     );
