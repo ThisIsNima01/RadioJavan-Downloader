@@ -41,110 +41,123 @@ class _MyAppState extends State<MyApp> {
         child: Consumer<MusicListProvider>(
           builder: (context, MusicListProvider musicListProvider, child) =>
               Scaffold(
-            appBar: AppBar(
-                backgroundColor: primaryColor,
-                title: Text('Radio Javan Downlaoder')),
-            backgroundColor: Color(0xffEEEEEE),
-            body: SafeArea(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    width: double.infinity,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16)),
-                            elevation: 10,
-                            child: Container(
-                              decoration: BoxDecoration(),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              child: TextField(
-                                controller: textEditingController,
-                                decoration: const InputDecoration(
-                                    enabledBorder: InputBorder.none,
-                                    focusedBorder: InputBorder.none,
-                                    hintStyle: TextStyle(fontSize: 14),
-                                    hintText: 'Enter Music Or Artist Name'),
+                appBar: AppBar(
+                    backgroundColor: primaryColor,
+                    title: Text('Radio Javan Downlaoder')),
+                backgroundColor: Color(0xffEEEEEE),
+                body: SafeArea(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const SizedBox(
+                        width: double.infinity,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16)),
+                                elevation: 10,
+                                child: Container(
+                                  decoration: BoxDecoration(),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
+                                  child: TextField(
+                                    controller: textEditingController,
+                                    decoration: const InputDecoration(
+                                        enabledBorder: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        hintStyle: TextStyle(fontSize: 14),
+                                        hintText: 'Enter Music Or Artist Name'),
+                                  ),
+                                ),
                               ),
                             ),
+                            const SizedBox(
+                              width: 12,
+                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                musicListProvider.musicList = [];
+                                setState(() {
+                                  isLoading = true;
+                                });
+
+                                musicListProvider.musicList = await apiService
+                                    .getMusicFromServer(
+                                    textEditingController.text);
+
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              },
+                              child: Text('Search'),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (musicListProvider.musicList.isNotEmpty) ...[
+                        Row(
+                          children: [
+                            SizedBox(width: 24,),
+                            Text(
+                              'Your Music Search',
+                              // textAlign: TextAlign.left,
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Expanded(
+                          child: ListView.builder(
+                              itemCount: musicListProvider.musicList.where((element) => element.type == 'mp3').toList().length,
+                              itemBuilder: (context, index) {
+                                Music currentMusic = musicListProvider
+                                    .musicList[index];
+
+                                List<Music> newMusics = musicListProvider
+                                    .musicList.where((element) =>
+                                (element.song == currentMusic.song &&
+                                    element.artist == currentMusic.artist)).toList();
+
+                                List<Music> musicToShow = musicListProvider.musicList.where((element) => element.type == 'mp3').toList();
+
+                                return MusicItem(
+                                  music: musicToShow[index],
+                                  mediaList: newMusics,
+                                );
+                              }
+                          ),
+                        )
+                      ],
+                      // Visibility(
+                      //   visible: !isLoading,
+                      //   child: Expanded(
+                      //     child: ListView.builder(
+                      //       itemCount: musicListProvider.musicList.length,
+                      //       itemBuilder: (context, index) => MusicItem(
+                      //         primaryColor: primaryColor,
+                      //         music: musicListProvider.musicList[index],
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      Visibility(
+                        visible: isLoading,
+                        child: const Expanded(
+                          child: Center(
+                            child: CircularProgressIndicator(),
                           ),
                         ),
-                        const SizedBox(
-                          width: 12,
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            musicListProvider.musicList = [];
-                            setState(() {
-                              isLoading = true;
-                            });
-
-                            musicListProvider.musicList = await apiService
-                                .getMusicFromServer(textEditingController.text);
-
-                            setState(() {
-                              isLoading = false;
-                            });
-                          },
-                          child: Text('Search'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (musicListProvider.musicList.isNotEmpty) ...[
-                    Row(
-                      children: [
-                        SizedBox(width: 24,),
-                        Text(
-                          'Your Music Search',
-                          // textAlign: TextAlign.left,
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: musicListProvider.musicList.length,
-                        itemBuilder: (context, index) => MusicItem(
-                          primaryColor: primaryColor,
-                          music: musicListProvider.musicList[index],
-                        ),
                       ),
-                    )
-                  ],
-                  // Visibility(
-                  //   visible: !isLoading,
-                  //   child: Expanded(
-                  //     child: ListView.builder(
-                  //       itemCount: musicListProvider.musicList.length,
-                  //       itemBuilder: (context, index) => MusicItem(
-                  //         primaryColor: primaryColor,
-                  //         music: musicListProvider.musicList[index],
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
-                  Visibility(
-                    visible: isLoading,
-                    child: const Expanded(
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
         ),
       ),
     );

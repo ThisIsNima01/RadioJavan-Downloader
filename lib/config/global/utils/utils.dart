@@ -34,8 +34,10 @@ class Utils {
     if (!status.isGranted) {
       await Permission.storage.request();
     }
+    String downloadLink = getMediaFormat(music) == 'video' ? music.hqLink! : music.link!;
+    print(downloadLink);
     await ApiService.dio.download(
-      getMediaFormat(music) == 'video' ? music.hqLink! : music.link!,
+      downloadLink,
       '/storage/emulated/0/Music/rj/${music.artist} - ${music.song}${getMediaFormat(music)}',
       onReceiveProgress: (count, total) {
         onReceiveProgress(count, total);
@@ -46,7 +48,7 @@ class Utils {
   }
 
   static String getMediaFormat(Music music) =>
-      music.type == 'video' ? '.mp4' : '.mp3';
+      music.type == 'video' ? '.m3u' : '.mp3';
 
   static requestStoragePermission() async {
     var status = await Permission.storage.request();

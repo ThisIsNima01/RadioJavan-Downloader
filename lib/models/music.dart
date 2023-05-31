@@ -1,10 +1,10 @@
 class Music {
   String? link;
-  String? photo;
+  String photo;
   String? thumbnail;
-  String? artist;
-  String? song;
-  String? type;
+  String artist;
+  String song;
+  String type;
   String? hqLink;
   String? hdLink;
 
