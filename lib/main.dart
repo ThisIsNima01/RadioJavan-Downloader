@@ -1,22 +1,15 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:on_audio_query/on_audio_query.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
-import 'package:rj_downloader/config/global/utils/utils.dart';
 import 'package:rj_downloader/config/services/remote/api_service.dart';
-import 'package:rj_downloader/download_notification.dart';
-import 'package:rj_downloader/models/music.dart';
 import 'package:rj_downloader/music_list_provider.dart';
 import 'package:rj_downloader/widgets/music_item.dart';
 
 import 'media.dart';
 
 void main() async {
-  // MediaStore.appFolder = "rj";
   runApp(const MyApp());
 }
 
@@ -61,7 +54,10 @@ class _MyAppState extends State<MyApp> {
               Scaffold(
             appBar: AppBar(
                 backgroundColor: primaryColor,
-                title: Text('Radio Javan Downlaoder',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),)),
+                title: Text(
+                  'Radio Javan Downlaoder',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                )),
             backgroundColor: Color(0xffEEEEEE),
             body: SafeArea(
               child: Column(
@@ -80,6 +76,7 @@ class _MyAppState extends State<MyApp> {
                                 borderRadius: BorderRadius.circular(16)),
                             elevation: 10,
                             child: AnimatedContainer(
+                              height: 54,
                               duration: const Duration(milliseconds: 500),
                               decoration: BoxDecoration(
                                 border: Border.all(
@@ -107,8 +104,11 @@ class _MyAppState extends State<MyApp> {
                         const SizedBox(
                           width: 12,
                         ),
-                        ElevatedButton(
-                          onPressed: () async {
+                        GestureDetector(
+                          onTap: () async {
+                            if (textEditingController.text.length == 0) {
+                              return;
+                            }
                             mediaList = [];
                             musicListProvider.musicList = [];
                             setState(() {
@@ -153,32 +153,106 @@ class _MyAppState extends State<MyApp> {
                               }
                             }
                           },
-                          child: const Text('Search'),
+                          child: Container(
+                            height: 54,
+                            width: 54,
+                            decoration: BoxDecoration(
+                              color: primaryColor,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: isLoading
+                                ? const Center(
+                                    child: SizedBox(
+                                        height: 24,
+                                        width: 24,
+                                        child: CircularProgressIndicator(
+                                            color: Colors.white)))
+                                : const Icon(
+                                    Iconsax.search_normal,
+                                    color: Colors.white,size: 26,
+                                  ),
+                          ),
                         ),
+                        // ElevatedButton(
+                        //   onPressed: () async {
+                        //     mediaList = [];
+                        //     musicListProvider.musicList = [];
+                        //     setState(() {
+                        //       isLoading = true;
+                        //     });
+                        //
+                        //     musicListProvider.musicList = await apiService
+                        //         .getMusicFromServer(textEditingController.text);
+                        //
+                        //     setState(() {
+                        //       isLoading = false;
+                        //     });
+                        //
+                        //     if (musicListProvider.musicList.isNotEmpty) {
+                        //       for (var music in musicListProvider.musicList) {
+                        //         if (mediaList
+                        //             .where((element) =>
+                        //                 element.artist == music.artist &&
+                        //                 element.song == music.song)
+                        //             .toList()
+                        //             .isEmpty) {
+                        //           if (music.type != 'video') {
+                        //             mediaList.add(
+                        //               Media(
+                        //                   artist: music.artist,
+                        //                   song: music.song,
+                        //                   photo: music.photo,
+                        //                   audioLink: music.link,
+                        //                   audioFormat: music.type),
+                        //             );
+                        //           }
+                        //         } else {
+                        //           if (music.type == 'video') {
+                        //             int itemIndex = mediaList.indexWhere(
+                        //                 (item) =>
+                        //                     item.artist == music.artist &&
+                        //                     item.song == music.song);
+                        //             mediaList[itemIndex].videoLink = music.link;
+                        //             mediaList[itemIndex].videoFormat = 'm3u';
+                        //           }
+                        //         }
+                        //       }
+                        //     }
+                        //   },
+                        //   child: const Text('Search'),
+                        // ),
                       ],
                     ),
                   ),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   if (musicListProvider.musicList.isNotEmpty) ...[
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
                         SizedBox(
                           width: 24,
                         ),
                         Text(
                           'Your Music Search',
-                          // textAlign: TextAlign.left,
+                          style: TextStyle(fontWeight: FontWeight.w700,fontSize: 18),
                         ),
                       ],
+                    ),
+                    const SizedBox(
+                      height: 12,
+                    ),
+                   const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 24),
+                      child: Divider(color: Colors.black87,height: 1),
                     ),
                     const SizedBox(
                       height: 20,
                     ),
                     Expanded(
                       child: ListView.builder(
-                          itemCount: musicListProvider.musicList
-                              .where((element) => element.type == 'mp3')
-                              .toList()
-                              .length,
+                          itemCount: mediaList.length,
                           itemBuilder: (context, index) {
                             return MusicItem(
                               media: mediaList[index],
@@ -192,13 +266,15 @@ class _MyAppState extends State<MyApp> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Text('Getting Music List...')
+                          // Center(
+                          //   child: CircularProgressIndicator(
+                          //     color: Colors.red,
+                          //   ),
+                          // ),
+                          // SizedBox(
+                          //   height: 20,
+                          // ),
+                          Text('Getting Music List...',style: TextStyle(fontWeight: FontWeight.w700,fontSize: 20),)
                         ],
                       ),
                     ),

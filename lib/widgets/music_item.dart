@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:rj_downloader/download_notification.dart';
 import 'package:rj_downloader/media.dart';
 import 'package:rj_downloader/music_screen.dart';
 import 'package:skeletons/skeletons.dart';
@@ -130,6 +129,7 @@ class _MusicItemState extends State<MusicItem> {
                             maxLines: 1,
                             style: const TextStyle(
                                 fontSize: 16,
+                                fontWeight: FontWeight.w700,
                                 overflow: TextOverflow.ellipsis),
                           ),
                           const SizedBox(
@@ -138,7 +138,7 @@ class _MusicItemState extends State<MusicItem> {
                           Text(
                             widget.media.artist,
                             maxLines: 1,
-                            style: TextStyle(fontSize: 12),
+                            style: TextStyle(fontSize: 12,fontWeight: FontWeight.w400,color: Colors.black54),
                           ),
                         ],
                       ),

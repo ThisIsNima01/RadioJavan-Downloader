@@ -27,8 +27,6 @@ class _MusicScreenState extends State<MusicScreen> {
 
   @override
   Widget build(BuildContext context) {
-    DownloadFinished(true).dispatch(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Download Music'),
@@ -249,9 +247,6 @@ class DownloadButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        await Permission.storage.request().isGranted;
-        await Permission.videos.request().isGranted;
-
         provider.isDownloading = true;
 
         await Utils.downloadMusic(media, (count, total) {
