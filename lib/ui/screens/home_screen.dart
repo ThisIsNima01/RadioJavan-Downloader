@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
-import 'package:rj_downloader/widgets/music_item.dart';
+import 'package:rj_downloader/config/global/utils/utils.dart';
+import 'package:rj_downloader/ui/widgets/music_item.dart';
 
-import 'config/services/remote/api_service.dart';
-import 'media.dart';
-import 'music_list_provider.dart';
+import '../../config/services/remote/api_service.dart';
+import '../../data/models/media.dart';
+import '../../data/providers/music_list_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -16,12 +17,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   TextEditingController textEditingController = TextEditingController();
-  ApiService apiService = ApiService();
   List<Media> mediaList = [];
   bool isLoading = false;
   FocusNode searchFocusNode = FocusNode();
 
-  Color primaryColor = Color(0xffE21221);
 
   @override
   void initState() {
@@ -45,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context, MusicListProvider musicListProvider, child) =>
             Scaffold(
           appBar: AppBar(
-              backgroundColor: primaryColor,
+              backgroundColor: Utils.primaryColor,
               title: const Text(
                 'Radio Javan Downloader',
                 style: TextStyle(fontSize: 18, fontFamily: 'pm'),
@@ -73,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             decoration: BoxDecoration(
                               border: Border.all(
                                 color: searchFocusNode.hasFocus
-                                    ? primaryColor
+                                    ? Utils.primaryColor
                                     : Colors.white,
                                 width: 2,
                               ),
@@ -109,48 +108,19 @@ class _HomeScreenState extends State<HomeScreen> {
                             isLoading = true;
                           });
 
-                          musicListProvider.musicList = await apiService
-                              .getMusicFromServer(textEditingController.text);
+                          musicListProvider.musicList =
+                              await ApiService.getMusicFromServer(
+                                  textEditingController.text);
 
                           setState(() {
                             isLoading = false;
                           });
-
-                          if (musicListProvider.musicList.isNotEmpty) {
-                            for (var music in musicListProvider.musicList) {
-                              if (mediaList
-                                  .where((element) =>
-                                      element.artist == music.artist &&
-                                      element.song == music.song)
-                                  .toList()
-                                  .isEmpty) {
-                                if (music.type != 'video') {
-                                  mediaList.add(
-                                    Media(
-                                        artist: music.artist,
-                                        song: music.song,
-                                        photo: music.photo,
-                                        audioLink: music.link,
-                                        audioFormat: music.type),
-                                  );
-                                }
-                              } else {
-                                if (music.type == 'video') {
-                                  int itemIndex = mediaList.indexWhere((item) =>
-                                      item.artist == music.artist &&
-                                      item.song == music.song);
-                                  mediaList[itemIndex].videoLink = music.link;
-                                  mediaList[itemIndex].videoFormat = 'm3u';
-                                }
-                              }
-                            }
-                          }
                         },
                         child: Container(
                           height: 54,
                           width: 54,
                           decoration: BoxDecoration(
-                            color: primaryColor,
+                            color: Utils.primaryColor,
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: isLoading
@@ -203,10 +173,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Expanded(
                     child: ListView.builder(
-                        itemCount: mediaList.length,
+                        itemCount: musicListProvider.musicList.length,
                         itemBuilder: (context, index) {
                           return MusicItem(
-                            media: mediaList[index],
+                            media: musicListProvider.musicList[index],
                           );
                         }),
                   )
@@ -219,8 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: const [
                         Text(
                           'Getting Music List...',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w700, fontSize: 20),
+                          style: TextStyle(fontSize: 18, fontFamily: 'pb'),
                         )
                       ],
                     ),

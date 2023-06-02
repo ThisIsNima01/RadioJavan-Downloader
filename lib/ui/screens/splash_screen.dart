@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:rj_downloader/home_screen.dart';
+import 'package:rj_downloader/ui/screens/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -14,21 +14,19 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    Future.delayed(const Duration(milliseconds: 600), () {
+    Future.delayed(const Duration(milliseconds: 500), () {
       setState(() {
         logoSize = 180;
       });
     });
 
     Future.delayed(
-      const Duration(milliseconds: 4500),
+      const Duration(milliseconds: 4300),
       () {
-        Get.offAll(
-            ()=> const HomeScreen(),
-          transition: Transition.rightToLeftWithFade,
-          duration: const Duration(milliseconds: 1000),
-          curve: Curves.easeIn
-        );
+        Get.offAll(() => const HomeScreen(),
+            transition: Transition.rightToLeftWithFade,
+            duration: const Duration(milliseconds: 1000),
+            curve: Curves.easeIn);
       },
     );
     super.initState();
@@ -46,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
           const Spacer(),
           AnimatedContainer(
             height: logoSize,
-            duration: const Duration(milliseconds: 600),
+            duration: const Duration(milliseconds: 500),
             child: Image.asset(
               'assets/images/app_logo.png',
             ),
@@ -56,7 +54,7 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
           AnimatedOpacity(
             opacity: logoSize == 180 ? 1 : 0,
-            duration: const Duration(milliseconds: 600),
+            duration: const Duration(milliseconds: 500),
             child: const Text(
               'Easy Way To Download From \nRadio Javan !',
               textAlign: TextAlign.center,

@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:rj_downloader/splash_screen.dart';
+import 'package:rj_downloader/ui/screens/splash_screen.dart';
 
 void main() async {
   runApp(const MyApp());

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-import 'models/music.dart';
+import '../models/music.dart';
 
 class MusicStateProvider extends ChangeNotifier {
   bool _isDownloading = false;

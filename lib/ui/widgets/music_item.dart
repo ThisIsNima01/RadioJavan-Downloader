@@ -2,11 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:rj_downloader/media.dart';
-import 'package:rj_downloader/music_screen.dart';
+import 'package:rj_downloader/data/models/media.dart';
 import 'package:skeletons/skeletons.dart';
 
-import '../config/global/utils/utils.dart';
+import '../../config/global/utils/utils.dart';
+import '../screens/music_screen.dart';
 
 class MusicItem extends StatefulWidget {
   Media media;

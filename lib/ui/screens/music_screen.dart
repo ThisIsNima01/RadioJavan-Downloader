@@ -7,12 +7,11 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:open_file/open_file.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:rj_downloader/config/global/utils/utils.dart';
-import 'package:rj_downloader/download_notification.dart';
-import 'package:rj_downloader/media.dart';
-import 'package:rj_downloader/music_state_provider.dart';
+import 'package:rj_downloader/config/services/remote/api_service.dart';
+import 'package:rj_downloader/data/models/media.dart';
+import 'package:rj_downloader/data/providers/music_state_provider.dart';
 
 class MusicScreen extends StatefulWidget {
   Media media;
@@ -26,7 +25,6 @@ class MusicScreen extends StatefulWidget {
 }
 
 class _MusicScreenState extends State<MusicScreen> {
-  Color primaryColor = Color(0xffE21221);
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +45,7 @@ class _MusicScreenState extends State<MusicScreen> {
               'Download Media',
               style: TextStyle(fontFamily: 'pb', fontSize: 18),
             ),
-            backgroundColor: primaryColor,
+            backgroundColor: Utils.primaryColor,
           ),
           body: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -155,7 +153,6 @@ class _OptionGeneratorState extends State<OptionGenerator> {
 
   @override
   void initState() {
-    // print('${widget.media.song} ${widget.media.artist} ${widget.music.type}');
 
     Utils.checkIfFileExistsAlready(widget.media, widget.mediaType)
         .then((result) {
@@ -300,7 +297,7 @@ class DownloadButton extends StatelessWidget {
       onTap: () async {
         provider.isDownloading = true;
 
-        await Utils.downloadMusic(media, (count, total) {
+        await ApiService.downloadMedia(media, (count, total) {
           provider.progressText = ((count / total) * 100).toStringAsFixed(0);
           provider.progressPercent = (count / total);
 
