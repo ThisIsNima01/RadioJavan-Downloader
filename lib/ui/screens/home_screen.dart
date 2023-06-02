@@ -17,7 +17,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   TextEditingController textEditingController = TextEditingController();
-  List<Media> mediaList = [];
   bool isLoading = false;
   FocusNode searchFocusNode = FocusNode();
 
@@ -102,7 +101,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           }
 
                           searchFocusNode.unfocus();
-                          mediaList = [];
                           musicListProvider.musicList = [];
                           setState(() {
                             isLoading = true;

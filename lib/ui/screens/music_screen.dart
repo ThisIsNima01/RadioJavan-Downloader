@@ -25,7 +25,6 @@ class MusicScreen extends StatefulWidget {
 }
 
 class _MusicScreenState extends State<MusicScreen> {
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -47,82 +46,118 @@ class _MusicScreenState extends State<MusicScreen> {
             ),
             backgroundColor: Utils.primaryColor,
           ),
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Center(
-                child: Card(
-                  elevation: 10,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  child: Container(
-                    height: 280,
-                    width: 280,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: CachedNetworkImageProvider(widget.media.photo),
+          body: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Center(
+                  child: Card(
+                    elevation: 10,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    child: Container(
+                      height: 280,
+                      width: 280,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        image: DecorationImage(
+                          fit: BoxFit.cover,
+                          image: CachedNetworkImageProvider(widget.media.photo),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Text(
-                widget.media.song,
-                maxLines: 1,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    overflow: TextOverflow.ellipsis),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              Text(
-                widget.media.artist,
-                maxLines: 1,
-                style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.white60),
-              ),
-              const SizedBox(
-                height: 24,
-              ),
-              Row(
-                children: [
-                  ChangeNotifierProvider(
-                    create: (context) => MusicStateProvider(),
-                    builder: (context, child) => Consumer<MusicStateProvider>(
-                      builder: (context, value, child) => OptionGenerator(
-                        musicState: value,
-                        media: widget.media,
-                        mediaType: '.mp3',
-                        onDownloadComplete: widget.onDownloadComplete,
-                      ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  widget.media.song,
+                  maxLines: 1,
+                  style: const TextStyle(
+                      shadows: [
+                        Shadow(color: Colors.black, blurRadius: 12),
+                      ],
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontFamily: 'pb',
+                      overflow: TextOverflow.ellipsis),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                Text(
+                  widget.media.artist,
+                  maxLines: 1,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      shadows: [
+                        Shadow(color: Colors.black, blurRadius: 12),
+                      ],
+                      fontSize: 14,
+                      overflow: TextOverflow.ellipsis,
+                      fontFamily: 'pm',
+                      color: Colors.white60),
+                ),
+                const SizedBox(
+                  height: 24,
+                ),
+                Card(
+                  elevation: 10,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * .5,
+                    height: 150,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          width: double.infinity,
+                        ),
+                        ChangeNotifierProvider(
+                          create: (context) => MusicStateProvider(),
+                          builder: (context, child) =>
+                              Consumer<MusicStateProvider>(
+                            builder: (context, value, child) => OptionGenerator(
+                              musicState: value,
+                              media: widget.media,
+                              mediaType: '.mp3',
+                              onDownloadComplete: widget.onDownloadComplete,
+                            ),
+                          ),
+                        ),
+                        if (widget.media.videoFormat != null) ...{
+                          const SizedBox(
+                            height: 20,
+                          ),
+                        },
+                        if (widget.media.videoLink != null) ...{
+                          ChangeNotifierProvider(
+                            create: (context) => MusicStateProvider(),
+                            builder: (context, child) =>
+                                Consumer<MusicStateProvider>(
+                              builder: (context, value, child) =>
+                                  OptionGenerator(
+                                musicState: value,
+                                media: widget.media,
+                                mediaType: '.mp4',
+                                onDownloadComplete: widget.onDownloadComplete,
+                              ),
+                            ),
+                          ),
+                        },
+                      ],
                     ),
                   ),
-                  if (widget.media.videoLink != null) ...{
-                    ChangeNotifierProvider(
-                      create: (context) => MusicStateProvider(),
-                      builder: (context, child) => Consumer<MusicStateProvider>(
-                        builder: (context, value, child) => OptionGenerator(
-                          musicState: value,
-                          media: widget.media,
-                          mediaType: '.mp4',
-                          onDownloadComplete: widget.onDownloadComplete,
-                        ),
-                      ),
-                    ),
-                  },
-                ],
-              )
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -153,7 +188,6 @@ class _OptionGeneratorState extends State<OptionGenerator> {
 
   @override
   void initState() {
-
     Utils.checkIfFileExistsAlready(widget.media, widget.mediaType)
         .then((result) {
       setState(() {
@@ -168,6 +202,7 @@ class _OptionGeneratorState extends State<OptionGenerator> {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (widget.musicState.isDownloaded) ...{
           PlayButton(
@@ -209,18 +244,15 @@ class DownloadProgressBar extends StatefulWidget {
 class _DownloadProgressBarState extends State<DownloadProgressBar> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(left: 40),
-      child: CircularPercentIndicator(
-        radius: 26,
-        lineWidth: 4,
-        progressColor: Colors.red,
-        backgroundColor: Colors.red.withOpacity(0.3),
-        percent: widget.widget.musicState.progressPercent,
-        center: Text(
-          '${widget.widget.musicState.progressText}%',
-          style: const TextStyle(color: Colors.white),
-        ),
+    return CircularPercentIndicator(
+      radius: 20,
+      curve: Curves.easeIn,
+      backgroundColor: Utils.primaryColor.withOpacity(0.3),
+      percent: widget.widget.musicState.progressPercent,
+      progressColor: Utils.primaryColor,
+      center: Text(
+        '${widget.widget.musicState.progressText}%',
+        style: TextStyle(fontSize: 11, fontFamily: 'pb'),
       ),
     );
   }
@@ -251,8 +283,8 @@ class PlayButton extends StatelessWidget {
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        margin: const EdgeInsets.only(left: 20),
+        height: 40,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
             color: Colors.red, borderRadius: BorderRadius.circular(14)),
         child: Center(
@@ -260,7 +292,7 @@ class PlayButton extends StatelessWidget {
             children: [
               Icon(mediaType == '.mp4' ? Iconsax.video : Iconsax.music,
                   color: Colors.white, size: 20),
-             const SizedBox(
+              const SizedBox(
                 width: 8,
               ),
               Text(
@@ -309,8 +341,8 @@ class DownloadButton extends StatelessWidget {
         }, mediaType, cancelToken);
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        margin: const EdgeInsets.only(left: 20),
+        height: 40,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
             color: Colors.red, borderRadius: BorderRadius.circular(14)),
         child: Center(
