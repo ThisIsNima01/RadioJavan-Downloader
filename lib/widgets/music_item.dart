@@ -1,7 +1,6 @@
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:rj_downloader/media.dart';
 import 'package:rj_downloader/music_screen.dart';
@@ -55,31 +54,59 @@ class _MusicItemState extends State<MusicItem> {
         if (!currentFocus.hasPrimaryFocus) {
           currentFocus.unfocus();
         }
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) =>
-                MusicScreen(
-                  media: widget.media,
-                  onDownloadComplete:() {
-                    Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
-                      setState(() {
-                        if (result) {
-                          isAudioDownloaded = true;
-                        }
-                      });
-                    });
 
-                    Utils.checkIfFileExistsAlready(widget.media, '.mp4').then((result) {
-                      setState(() {
-                        if (result) {
-                          isVideoDownloaded = true;
-                        }
-                      });
-                    });
-                  },
-                ),
-          ),
+        Get.to(
+            ()=> MusicScreen(
+              media: widget.media,
+              onDownloadComplete:() {
+                Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
+                  setState(() {
+                    if (result) {
+                      isAudioDownloaded = true;
+                    }
+                  });
+                });
+
+                Utils.checkIfFileExistsAlready(widget.media, '.mp4').then((result) {
+                  setState(() {
+                    if (result) {
+                      isVideoDownloaded = true;
+                    }
+                  });
+                });
+              },
+            ),
+            transition: Transition.size,
+            fullscreenDialog: true,
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeIn
         );
+
+        // Navigator.of(context).push(
+        //   MaterialPageRoute(
+        //     builder: (context) =>
+        //         MusicScreen(
+        //           media: widget.media,
+        //           onDownloadComplete:() {
+        //             Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
+        //               setState(() {
+        //                 if (result) {
+        //                   isAudioDownloaded = true;
+        //                 }
+        //               });
+        //             });
+        //
+        //             Utils.checkIfFileExistsAlready(widget.media, '.mp4').then((result) {
+        //               setState(() {
+        //                 if (result) {
+        //                   isVideoDownloaded = true;
+        //                 }
+        //               });
+        //             });
+        //           },
+        //         ),
+        //   ),
+        // );
       },
       child: Stack(
         alignment: Alignment.topRight,

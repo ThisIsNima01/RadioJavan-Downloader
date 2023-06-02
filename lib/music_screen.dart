@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -27,63 +29,103 @@ class _MusicScreenState extends State<MusicScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Download Music'),
-        backgroundColor: primaryColor,
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: CachedNetworkImageProvider(widget.media.photo),
+          fit: BoxFit.fill,
+          // repeat: ImageRepeat.repeatY,
+        ),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Center(
-            child: Card(
-              elevation: 8,
-              color: Colors.transparent,
-              child: Container(
-                height: 300,
-                width: 300,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: CachedNetworkImageProvider(widget.media.photo),
-                  ),
-                ),
-              ),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            title: const Text(
+              'Download Media',
+              style: TextStyle(fontFamily: 'pb', fontSize: 18),
             ),
+            backgroundColor: primaryColor,
           ),
-          SizedBox(
-            height: 20,
-          ),
-          Row(
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ChangeNotifierProvider(
-                create: (context) => MusicStateProvider(),
-                builder: (context, child) => Consumer<MusicStateProvider>(
-                  builder: (context, value, child) => OptionGenerator(
-                    musicState: value,
-                    media: widget.media,
-                    mediaType: '.mp3',
-                    onDownloadComplete: widget.onDownloadComplete,
-                  ),
-                ),
-              ),
-              if (widget.media.videoLink != null) ...{
-                ChangeNotifierProvider(
-                  create: (context) => MusicStateProvider(),
-                  builder: (context, child) => Consumer<MusicStateProvider>(
-                    builder: (context, value, child) => OptionGenerator(
-                      musicState: value,
-                      media: widget.media,
-                      mediaType: '.mp4',
-                      onDownloadComplete: widget.onDownloadComplete,
+              Center(
+                child: Card(
+                  elevation: 10,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  child: Container(
+                    height: 280,
+                    width: 280,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: CachedNetworkImageProvider(widget.media.photo),
+                      ),
                     ),
                   ),
                 ),
-              },
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Text(
+                widget.media.song,
+                maxLines: 1,
+                style: const TextStyle(
+                  color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    overflow: TextOverflow.ellipsis),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              Text(
+                widget.media.artist,
+                maxLines: 1,
+                style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white60),
+              ),
+              const SizedBox(
+                height: 24,
+              ),
+              Row(
+                children: [
+                  ChangeNotifierProvider(
+                    create: (context) => MusicStateProvider(),
+                    builder: (context, child) => Consumer<MusicStateProvider>(
+                      builder: (context, value, child) => OptionGenerator(
+                        musicState: value,
+                        media: widget.media,
+                        mediaType: '.mp3',
+                        onDownloadComplete: widget.onDownloadComplete,
+                      ),
+                    ),
+                  ),
+                  if (widget.media.videoLink != null) ...{
+                    ChangeNotifierProvider(
+                      create: (context) => MusicStateProvider(),
+                      builder: (context, child) => Consumer<MusicStateProvider>(
+                        builder: (context, value, child) => OptionGenerator(
+                          musicState: value,
+                          media: widget.media,
+                          mediaType: '.mp4',
+                          onDownloadComplete: widget.onDownloadComplete,
+                        ),
+                      ),
+                    ),
+                  },
+                ],
+              )
             ],
-          )
-        ],
+          ),
+        ),
       ),
     );
   }
@@ -141,7 +183,8 @@ class _OptionGeneratorState extends State<OptionGenerator> {
               media: widget.media,
               provider: widget.musicState,
               mediaType: widget.mediaType,
-              cancelToken: cancelToken,onDownloadComplete: widget.onDownloadComplete),
+              cancelToken: cancelToken,
+              onDownloadComplete: widget.onDownloadComplete),
         },
         if (widget.musicState.isDownloading) ...{
           DownloadProgressBar(widget: widget, cancelToken: cancelToken),
@@ -168,13 +211,16 @@ class DownloadProgressBar extends StatefulWidget {
 class _DownloadProgressBarState extends State<DownloadProgressBar> {
   @override
   Widget build(BuildContext context) {
-    return CircularPercentIndicator(
-      radius: 20,
-      lineWidth: 5,
-      progressColor: Colors.red,
-      backgroundColor: Colors.red.withOpacity(0.3),
-      percent: widget.widget.musicState.progressPercent,
-      center: Text('${widget.widget.musicState.progressText}%'),
+    return Container(
+      margin: const EdgeInsets.only(left: 40),
+      child: CircularPercentIndicator(
+        radius: 26,
+        lineWidth: 4,
+        progressColor: Colors.red,
+        backgroundColor: Colors.red.withOpacity(0.3),
+        percent: widget.widget.musicState.progressPercent,
+        center: Text('${widget.widget.musicState.progressText}%',style: TextStyle(color: Colors.white),),
+      ),
     );
   }
 
@@ -240,7 +286,8 @@ class DownloadButton extends StatelessWidget {
       required this.media,
       required this.provider,
       required this.mediaType,
-      required this.cancelToken, required this.onDownloadComplete})
+      required this.cancelToken,
+      required this.onDownloadComplete})
       : super(key: key);
 
   @override
