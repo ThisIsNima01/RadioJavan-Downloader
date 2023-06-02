@@ -14,19 +14,19 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    Future.delayed(const Duration(milliseconds: 800), () {
+    Future.delayed(const Duration(milliseconds: 600), () {
       setState(() {
         logoSize = 180;
       });
     });
 
     Future.delayed(
-      const Duration(seconds: 5),
+      const Duration(milliseconds: 4500),
       () {
         Get.offAll(
             ()=> const HomeScreen(),
           transition: Transition.rightToLeftWithFade,
-          duration: const Duration(milliseconds: 1300),
+          duration: const Duration(milliseconds: 1000),
           curve: Curves.easeIn
         );
       },
@@ -46,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen> {
           const Spacer(),
           AnimatedContainer(
             height: logoSize,
-            duration: const Duration(milliseconds: 800),
+            duration: const Duration(milliseconds: 600),
             child: Image.asset(
               'assets/images/app_logo.png',
             ),
@@ -56,7 +56,7 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
           AnimatedOpacity(
             opacity: logoSize == 180 ? 1 : 0,
-            duration: const Duration(milliseconds: 800),
+            duration: const Duration(milliseconds: 600),
             child: const Text(
               'Easy Way To Download From \nRadio Javan !',
               textAlign: TextAlign.center,

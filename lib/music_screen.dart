@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:open_file/open_file.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -76,7 +77,7 @@ class _MusicScreenState extends State<MusicScreen> {
                 widget.media.song,
                 maxLines: 1,
                 style: const TextStyle(
-                  color: Colors.white,
+                    color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     overflow: TextOverflow.ellipsis),
@@ -219,7 +220,10 @@ class _DownloadProgressBarState extends State<DownloadProgressBar> {
         progressColor: Colors.red,
         backgroundColor: Colors.red.withOpacity(0.3),
         percent: widget.widget.musicState.progressPercent,
-        center: Text('${widget.widget.musicState.progressText}%',style: TextStyle(color: Colors.white),),
+        center: Text(
+          '${widget.widget.musicState.progressText}%',
+          style: const TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
@@ -244,9 +248,9 @@ class PlayButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        if (await Permission.audio.request().isGranted) {
+        if (await Utils.handlePlayingMediaPermissions()) {
           await OpenFile.open(
-              '/storage/emulated/0/Music/rj/${media.artist} - ${media.song}$mediaType');
+              '/storage/emulated/0/Music/rj/${Utils.getDirectoryNameByMediaFormat(mediaType)}/${media.artist} - ${media.song}$mediaType');
         }
       },
       child: Container(
@@ -259,11 +263,11 @@ class PlayButton extends StatelessWidget {
             children: [
               Icon(mediaType == '.mp4' ? Iconsax.video : Iconsax.music,
                   color: Colors.white, size: 20),
-              SizedBox(
+             const SizedBox(
                 width: 8,
               ),
               Text(
-                'Play ${mediaType == '.mp4' ? 'Video' : 'Music'}',
+                'Play ${Utils.getDirectoryNameByMediaFormat(mediaType).capitalizeFirst}',
                 style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
             ],
@@ -308,7 +312,7 @@ class DownloadButton extends StatelessWidget {
         }, mediaType, cancelToken);
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         margin: const EdgeInsets.only(left: 20),
         decoration: BoxDecoration(
             color: Colors.red, borderRadius: BorderRadius.circular(14)),
@@ -321,7 +325,7 @@ class DownloadButton extends StatelessWidget {
                 width: 8,
               ),
               Text(
-                'Download ${mediaType == '.mp4' ? 'Video' : 'Music'}',
+                'Download ${Utils.getDirectoryNameByMediaFormat(mediaType).capitalizeFirst}',
                 style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
             ],

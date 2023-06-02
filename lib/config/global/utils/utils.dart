@@ -39,9 +39,11 @@ class Utils {
 
     await _requestPermission();
 
-    if (!await isDirectoryCreated(getDirectoryNameByMediaFormat(mediaType))){
-      await createDirectory(getDirectoryNameByMediaFormat(mediaType));
-    }
+    // if (!await isDirectoryCreated(getDirectoryNameByMediaFormat(mediaType))){
+    //   await createDirectory(getDirectoryNameByMediaFormat(mediaType));
+    // }
+    
+    await createDirectory(getDirectoryNameByMediaFormat(mediaType));
 
     await ApiService.dio.download(
       mediaType == '.mp4' ? media.videoLink! : media.audioLink!,
@@ -70,12 +72,22 @@ class Utils {
   //   }
   // }
 
- static Future<bool> isDirectoryCreated(String dirName) async{
-   return await Directory('/storage/emulated/0/Music/rj/$dirName').exists();
-  }
+ // static Future<bool> isDirectoryCreated(String dirName) async{
+ //   return await Directory('/storage/emulated/0/Music/rj/$dirName').exists();
+ //  }
 
-  static Future<Directory> createDirectory(String dirName) async{
-    return await Directory('/storage/emulated/0/Music/rj/$dirName').create();
+  static Future<void> createDirectory(String dirName) async{
+
+    if (!await Directory('/storage/emulated/0/Music/rj').exists()) {
+      await Directory('/storage/emulated/0/Music/rj').create();
+    }
+
+
+    if (!await Directory('/storage/emulated/0/Music/rj/$dirName').exists()) {
+     await Directory('/storage/emulated/0/Music/rj/$dirName').create();
+    }
+
+
   }
 
   static String getDirectoryNameByMediaFormat(String mediaFormat) => mediaFormat == '.mp4' ? 'video' : 'audio';
@@ -92,4 +104,6 @@ class Utils {
     }
     return true;
   }
+
+  static Future<bool> handlePlayingMediaPermissions() async => await Permission.audio.request().isGranted && await Permission.videos.request().isGranted;
 }

@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   enabledBorder: InputBorder.none,
                                   focusedBorder: InputBorder.none,
                                   hintStyle: TextStyle(fontSize: 14),
-                                  hintText: 'Enter Music Or Artist Name'),
+                                  hintText: 'Enter music or artist name'),
                             ),
                           ),
                         ),
@@ -98,10 +98,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       GestureDetector(
                         onTap: () async {
-                          searchFocusNode.unfocus();
                           if (textEditingController.text.isEmpty) {
                             return;
                           }
+
+                          searchFocusNode.unfocus();
                           mediaList = [];
                           musicListProvider.musicList = [];
                           setState(() {
@@ -170,54 +171,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                         ),
                       ),
-                      // ElevatedButton(
-                      //   onPressed: () async {
-                      //     mediaList = [];
-                      //     musicListProvider.musicList = [];
-                      //     setState(() {
-                      //       isLoading = true;
-                      //     });
-                      //
-                      //     musicListProvider.musicList = await apiService
-                      //         .getMusicFromServer(textEditingController.text);
-                      //
-                      //     setState(() {
-                      //       isLoading = false;
-                      //     });
-                      //
-                      //     if (musicListProvider.musicList.isNotEmpty) {
-                      //       for (var music in musicListProvider.musicList) {
-                      //         if (mediaList
-                      //             .where((element) =>
-                      //                 element.artist == music.artist &&
-                      //                 element.song == music.song)
-                      //             .toList()
-                      //             .isEmpty) {
-                      //           if (music.type != 'video') {
-                      //             mediaList.add(
-                      //               Media(
-                      //                   artist: music.artist,
-                      //                   song: music.song,
-                      //                   photo: music.photo,
-                      //                   audioLink: music.link,
-                      //                   audioFormat: music.type),
-                      //             );
-                      //           }
-                      //         } else {
-                      //           if (music.type == 'video') {
-                      //             int itemIndex = mediaList.indexWhere(
-                      //                 (item) =>
-                      //                     item.artist == music.artist &&
-                      //                     item.song == music.song);
-                      //             mediaList[itemIndex].videoLink = music.link;
-                      //             mediaList[itemIndex].videoFormat = 'm3u';
-                      //           }
-                      //         }
-                      //       }
-                      //     }
-                      //   },
-                      //   child: const Text('Search'),
-                      // ),
                     ],
                   ),
                 ),
@@ -264,14 +217,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
-                        // Center(
-                        //   child: CircularProgressIndicator(
-                        //     color: Colors.red,
-                        //   ),
-                        // ),
-                        // SizedBox(
-                        //   height: 20,
-                        // ),
                         Text(
                           'Getting Music List...',
                           style: TextStyle(
