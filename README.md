@@ -9,3 +9,7 @@ Just Search Music or Artis Name...
 ## App Preview - How To Use
 
 https://uupload.ir/view/lv_0_20230603051244_zx55.mp4/
+
+<a href="https://uupload.ir/view/lv_0_20230603051244_zx55.mp4/"/>
+
+<iframe src="https://uupload.ir/view/lv_0_20230603051244_zx55.mp4/" title="description"></iframe>
