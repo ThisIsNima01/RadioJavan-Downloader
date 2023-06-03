@@ -8,4 +8,4 @@ Just Search Music or Artis Name...
 
 ## App Preview - How To Use
 
-<a src="preview/video/video.mp4"></a>
+<a href="https://www.uplooder.net//files/c26d18ca7ceee98bea6dbb685b2b7cca/video.mp4.html" target="_blank">video.mp4</a>
