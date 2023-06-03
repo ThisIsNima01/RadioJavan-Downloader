@@ -8,4 +8,5 @@ Just Search Music or Artis Name...
 
 ## App Preview - How To Use
 
-<a href="https://www.uplooder.net//files/c26d18ca7ceee98bea6dbb685b2b7cca/video.mp4.html" target="_blank">video.mp4</a>
+https://github.com/NimaNaderi/RadioJavan-Downloader/assets/96233921/29851a97-ed9c-43cf-aa90-eae0d2362f7c
+
