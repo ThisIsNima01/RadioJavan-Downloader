@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
     });
 
     Future.delayed(
-      const Duration(milliseconds: 4300),
+      const Duration(milliseconds: 4000),
       () {
         Get.offAll(() => const HomeScreen(),
             transition: Transition.rightToLeftWithFade,

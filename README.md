@@ -5,3 +5,7 @@ Application That Gives You Ability To Download Any Audio Or Video Music From Rad
 ## Getting Started
 
 Just Search Music or Artis Name...
+
+## App Preview - How To Use
+
+<a src="preview/video/video.mp4"></a>
