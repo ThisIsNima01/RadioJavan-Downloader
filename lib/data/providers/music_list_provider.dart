@@ -28,8 +28,7 @@ class MusicListProvider extends ChangeNotifier {
                   artist: music.artist,
                   song: music.song,
                   photo: music.photo,
-                  audioLink: music.link,
-                  audioFormat: music.type),
+                  audioLink: music.link),
             );
           }
         } else {
@@ -38,7 +37,6 @@ class MusicListProvider extends ChangeNotifier {
             item.artist == music.artist &&
                 item.song == music.song);
             mediaList[itemIndex].videoLink = music.link;
-            mediaList[itemIndex].videoFormat = 'm3u';
           }
         }
       }

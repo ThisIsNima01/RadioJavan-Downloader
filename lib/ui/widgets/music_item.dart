@@ -44,8 +44,6 @@ class _MusicItemState extends State<MusicItem> {
     super.initState();
   }
 
-  Color primaryColor = Color(0xffE21221);
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -120,7 +118,7 @@ class _MusicItemState extends State<MusicItem> {
                 borderRadius: BorderRadius.circular(15.0),
                 side: BorderSide(
                   width: 2,
-                  color: primaryColor,
+                  color: Utils.primaryColor,
                 ),
               ),
               child: Padding(

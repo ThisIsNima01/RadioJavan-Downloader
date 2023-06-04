@@ -47,6 +47,11 @@ dependencies:
   iconsax: ^0.0.8
   get: ^4.6.5
   flutter_animation_progress_bar: ^2.3.1
+  audio_video_progress_bar: ^1.0.1
+  just_audio: ^0.9.34
+  just_audio_background: ^0.0.1-beta.10
+  rxdart: ^0.27.5
+  fluttertoast: ^8.2.2
 
 dev_dependencies:
   flutter_test:
