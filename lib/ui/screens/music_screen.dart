@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_cache/just_audio_cache.dart';
 import 'package:open_file/open_file.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +33,6 @@ class MusicScreen extends StatefulWidget {
 class _MusicScreenState extends State<MusicScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool isDownloaded = false;
-  FToast? fToast;
 
   Stream<PositionData> get _positionDataStream => CombineLatestStream.combine3(
       _audioPlayer.positionStream,
@@ -42,10 +42,8 @@ class _MusicScreenState extends State<MusicScreen> {
 
   @override
   void initState() {
-    fToast = FToast();
-    fToast!.init(context);
     Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
-      setState(() {
+      setState(() async {
         if (result) {
           _audioPlayer.setFilePath(
               '/storage/emulated/0/Music/rj/audio/${widget.media.artist} - ${widget.media.song}.mp3');
@@ -54,7 +52,8 @@ class _MusicScreenState extends State<MusicScreen> {
             isDownloaded = true;
           });
         } else {
-          _audioPlayer.setUrl(widget.media.audioLink);
+            _audioPlayer.dynamicSet(
+                url: widget.media.audioLink, pushIfNotExisted: true);
         }
       });
     });
@@ -108,7 +107,7 @@ class _MusicScreenState extends State<MusicScreen> {
                             height: 280,
                             width: 280,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(14),
                               image: DecorationImage(
                                 fit: BoxFit.cover,
                                 image: CachedNetworkImageProvider(
@@ -172,6 +171,7 @@ class _MusicScreenState extends State<MusicScreen> {
                           stream: _positionDataStream,
                           builder: (context, snapshot) {
                             final positionData = snapshot.data;
+
                             return Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 20),
@@ -219,7 +219,7 @@ class _MusicScreenState extends State<MusicScreen> {
                             ),
                             AudioPlayerControl(
                                 audioPlayer: _audioPlayer,
-                                isDownloaded: isDownloaded),
+                                isDownloaded: isDownloaded,media: widget.media,),
                             const SizedBox(
                               width: 20,
                             ),

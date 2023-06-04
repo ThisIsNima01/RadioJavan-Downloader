@@ -79,32 +79,6 @@ class _MusicItemState extends State<MusicItem> {
             duration: const Duration(milliseconds: 600),
             curve: Curves.easeIn
         );
-
-        // Navigator.of(context).push(
-        //   MaterialPageRoute(
-        //     builder: (context) =>
-        //         MusicScreen(
-        //           media: widget.media,
-        //           onDownloadComplete:() {
-        //             Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
-        //               setState(() {
-        //                 if (result) {
-        //                   isAudioDownloaded = true;
-        //                 }
-        //               });
-        //             });
-        //
-        //             Utils.checkIfFileExistsAlready(widget.media, '.mp4').then((result) {
-        //               setState(() {
-        //                 if (result) {
-        //                   isVideoDownloaded = true;
-        //                 }
-        //               });
-        //             });
-        //           },
-        //         ),
-        //   ),
-        // );
       },
       child: Stack(
         alignment: Alignment.topRight,

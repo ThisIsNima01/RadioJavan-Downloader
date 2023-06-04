@@ -3,14 +3,20 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rj_downloader/config/global/utils/utils.dart';
+import 'package:rj_downloader/data/models/media.dart';
 
 class AudioPlayerControl extends StatelessWidget {
-   AudioPlayerControl({Key? key, required this.audioPlayer, required this.isDownloaded})
+  AudioPlayerControl(
+      {Key? key,
+      required this.audioPlayer,
+      required this.isDownloaded,
+      required this.media})
       : super(key: key);
 
   final AudioPlayer audioPlayer;
   bool isFirstTime = true;
   bool isDownloaded;
+  Media media;
 
   @override
   Widget build(BuildContext context) {
@@ -22,13 +28,23 @@ class AudioPlayerControl extends StatelessWidget {
         final playing = playerState?.playing;
         if (!(playing ?? false)) {
           return IconButton(
-            onPressed: (){
+            onPressed: () async {
+              audioPlayer.play();
+
               FToast fToast = FToast();
-              if (isFirstTime) {
-                if (!isDownloaded){
+              fToast.init(context);
+              bool isAudioInCache =
+                  await Utils.isAudioInCache(audioPlayer, media.audioLink);
+
+              if (!isFirstTime) {
+                return;
+              }
+
+              if (!isDownloaded && !isAudioInCache) {
                 fToast.showToast(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.green,
                       borderRadius: BorderRadius.circular(20),
@@ -39,24 +55,23 @@ class AudioPlayerControl extends StatelessWidget {
                     ),
                   ),
                 );
-                } else {
-                  fToast.showToast(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        'Now Playing Offline',
-                        style: TextStyle(color: Colors.white, fontFamily: 'pm'),
-                      ),
+              } else {
+                fToast.showToast(
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                  );
-                }
-                isFirstTime = false;
+                    child: const Text(
+                      'Now Playing Offline',
+                      style: TextStyle(color: Colors.white, fontFamily: 'pm'),
+                    ),
+                  ),
+                );
               }
-              audioPlayer.play();
+              isFirstTime = false;
             },
             iconSize: 50,
             color: Utils.primaryColor,
@@ -75,7 +90,8 @@ class AudioPlayerControl extends StatelessWidget {
           iconSize: 50,
           color: Utils.primaryColor,
           icon: const Icon(Iconsax.play),
-        );;
+        );
+        ;
       },
     );
   }

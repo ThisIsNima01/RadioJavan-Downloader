@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_cache/just_audio_cache.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rj_downloader/data/models/media.dart';
@@ -50,4 +52,6 @@ class Utils {
   static Future<bool> handlePlayingMediaPermissions() async =>
       await Permission.audio.request().isGranted &&
       await Permission.videos.request().isGranted;
+
+  static Future<bool> isAudioInCache(AudioPlayer audioPlayer, String url) async => await audioPlayer.existedInLocal(url: url);
 }
