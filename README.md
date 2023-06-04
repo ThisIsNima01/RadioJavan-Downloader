@@ -1,6 +1,6 @@
 # Radio Javan Downloader
 
-Application That Gives You Ability To Download Any Audio Or Video Music From Radio Javan And Saves It Into Your Phone's Storage
+Application That Gives You Ability To Stream Online or Download Any Audio and Video Music From Radio Javan And Saves It Into Your Phone's Storage
 
 ## Getting Started
 
