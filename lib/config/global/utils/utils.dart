@@ -54,4 +54,6 @@ class Utils {
       await Permission.videos.request().isGranted;
 
   static Future<bool> isAudioInCache(AudioPlayer audioPlayer, String url) async => await audioPlayer.existedInLocal(url: url);
+
+  static String currentAudioSourceUri = '';
 }

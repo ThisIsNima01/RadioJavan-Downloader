@@ -18,8 +18,7 @@ class MusicListProvider extends ChangeNotifier {
       for (var music in _musicList) {
         if (mediaList
             .where((element) =>
-        element.artist == music.artist &&
-            element.song == music.song)
+                element.artist == music.artist && element.song == music.song)
             .toList()
             .isEmpty) {
           if (music.type != 'video') {
@@ -28,14 +27,14 @@ class MusicListProvider extends ChangeNotifier {
                   artist: music.artist,
                   song: music.song,
                   photo: music.photo,
-                  audioLink: music.link),
+                  audioLink: music.link,
+                  duration: music.duration),
             );
           }
         } else {
           if (music.type == 'video') {
             int itemIndex = mediaList.indexWhere((item) =>
-            item.artist == music.artist &&
-                item.song == music.song);
+                item.artist == music.artist && item.song == music.song);
             mediaList[itemIndex].videoLink = music.link;
           }
         }

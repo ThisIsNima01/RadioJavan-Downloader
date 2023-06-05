@@ -41,7 +41,7 @@ class _AudioPlayerControlState extends State<AudioPlayerControl> {
           final playerState = snapshot.data;
           final processingState = playerState?.processingState;
           final playing = playerState?.playing;
-          if (processingState == ProcessingState.buffering && (!isAudioInCache! && !widget.isDownloaded)) {
+          if ((processingState == ProcessingState.buffering || processingState == ProcessingState.loading) && (!isAudioInCache! && !widget.isDownloaded)) {
             return SizedBox(
               height: 42,
               width: 42,

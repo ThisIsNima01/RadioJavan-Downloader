@@ -22,8 +22,13 @@ import 'package:rxdart/streams.dart';
 class MusicScreen extends StatefulWidget {
   Media media;
   Function() onDownloadComplete;
+  AudioPlayer audioPlayer;
 
-  MusicScreen({Key? key, required this.media, required this.onDownloadComplete})
+  MusicScreen(
+      {Key? key,
+      required this.media,
+      required this.onDownloadComplete,
+      required this.audioPlayer})
       : super(key: key);
 
   @override
@@ -31,41 +36,53 @@ class MusicScreen extends StatefulWidget {
 }
 
 class _MusicScreenState extends State<MusicScreen> {
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  // final AudioPlayer _audioPlayer = AudioPlayer();
+  AudioPlayer _audioPlayer = AudioPlayer();
   bool isDownloaded = false;
+  bool isSame = false;
 
   Stream<PositionData> get _positionDataStream => CombineLatestStream.combine3(
-      _audioPlayer.positionStream,
-      _audioPlayer.bufferedPositionStream,
-      _audioPlayer.durationStream,
+      widget.audioPlayer.positionStream,
+      widget.audioPlayer.bufferedPositionStream,
+      widget.audioPlayer.durationStream,
       (a, b, c) => PositionData(a, b, c ?? Duration.zero));
 
   @override
   void initState() {
-    Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
-      setState(() async {
-        if (result) {
-          _audioPlayer.setFilePath(
-              '/storage/emulated/0/Music/rj/audio/${widget.media.artist} - ${widget.media.song}.mp3');
+    _audioPlayer = widget.audioPlayer;
+    ProgressiveAudioSource? audioSource;
+    if (_audioPlayer.audioSource != null) {
+      audioSource = _audioPlayer.audioSource as ProgressiveAudioSource;
+      isSame = audioSource.duration?.inSeconds.toString() ==
+              widget.media.duration.toString().substring(0, 3);
+    }
 
-          setState(() {
-            isDownloaded = true;
-          });
-        } else {
-          _audioPlayer.dynamicSet(
-              url: widget.media.audioLink, pushIfNotExisted: true);
-        }
+      Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
+        setState(() {
+          if (result) {
+            setState(() {
+              isDownloaded = true;
+            });
+
+            if (isSame) {
+              return;
+            }
+            _audioPlayer.setFilePath(
+                '/storage/emulated/0/Music/rj/audio/${widget.media.artist} - ${widget.media.song}.mp3');
+          } else {
+            if (isSame) {
+              return;
+            }
+            _audioPlayer.dynamicSet(
+                url: widget.media.audioLink, pushIfNotExisted: true);
+          }
+        });
       });
-    });
+
 
     super.initState();
   }
 
-  @override
-  void dispose() {
-    _audioPlayer.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -189,7 +206,7 @@ class _MusicScreenState extends State<MusicScreen> {
                                     Utils.primaryColor.withOpacity(0.3),
                                 bufferedBarColor: isDownloaded
                                     ? Colors.transparent
-                                    : Colors.black.withOpacity(0.5),
+                                    : Colors.black.withOpacity(0.3),
                                 progressBarColor: Utils.primaryColor,
                                 thumbColor: Utils.primaryColor,
                                 progress:
@@ -444,21 +461,25 @@ class DownloadButton extends StatelessWidget {
 
           if (count == total) {
             onDownloadComplete();
-            FToast().showToast(
-              toastDuration: const Duration(seconds: 3),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '${Utils.getDirectoryNameByMediaFormat(mediaType).capitalizeFirst} Downloaded Successfully',
-                  style: const TextStyle(color: Colors.white, fontFamily: 'pm'),
-                ),
-              ),
-            );
+            // FToast fToast = FToast();
+            // fToast.init(context);
+
+
+            // fToast.showToast(
+            //   toastDuration: const Duration(seconds: 3),
+            //   child: Container(
+            //     padding:
+            //         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            //     decoration: BoxDecoration(
+            //       color: Colors.green,
+            //       borderRadius: BorderRadius.circular(20),
+            //     ),
+            //     child: Text(
+            //       '${Utils.getDirectoryNameByMediaFormat(mediaType).capitalizeFirst} Downloaded Successfully',
+            //       style: const TextStyle(color: Colors.white, fontFamily: 'pm'),
+            //     ),
+            //   ),
+            // );
             provider.isDownloaded = true;
             provider.isDownloading = false;
           }

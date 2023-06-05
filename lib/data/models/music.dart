@@ -4,9 +4,10 @@ class Music {
   dynamic artist;
   dynamic song;
   dynamic type;
+  dynamic duration;
 
   Music(
-      this.link, this.photo,this.artist, this.song, this.type);
+      this.link, this.photo,this.artist, this.song, this.type,this.duration);
 
   factory Music.fromJson(Map<String, dynamic> jsonMapObject) {
     return Music(
@@ -15,6 +16,7 @@ class Music {
       jsonMapObject['artist'],
       jsonMapObject['song'],
       jsonMapObject['type'],
+      jsonMapObject['duration'],
     );
   }
 }

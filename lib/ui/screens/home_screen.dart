@@ -1,11 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_cache/just_audio_cache.dart';
 import 'package:provider/provider.dart';
+import 'package:rj_downloader/config/global/constants/app_constants.dart';
 import 'package:rj_downloader/config/global/utils/utils.dart';
 import 'package:rj_downloader/ui/widgets/music_item.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../config/services/remote/api_service.dart';
-import '../../data/models/media.dart';
 import '../../data/providers/music_list_provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -19,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   TextEditingController textEditingController = TextEditingController();
   bool isLoading = false;
   FocusNode searchFocusNode = FocusNode();
-
+  AudioPlayer audioPlayer = AudioPlayer();
 
   @override
   void initState() {
@@ -35,6 +40,11 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  List popUpChoices = [
+    CustomPopupMenu(title: 'Clear Cache', icon: Iconsax.trash),
+    CustomPopupMenu(title: 'Developer Github', icon: Iconsax.user),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -44,6 +54,76 @@ class _HomeScreenState extends State<HomeScreen> {
             Scaffold(
           appBar: AppBar(
               backgroundColor: Utils.primaryColor,
+              actions: [
+                PopupMenuButton(
+                  onSelected: (value) async {
+                    var selectedItem = value as CustomPopupMenu;
+                    if (selectedItem.title == 'Developer Github') {
+                      await launchUrl(Uri.parse(AppConstants.myGithubLink),
+                          mode: LaunchMode.externalApplication);
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text(
+                            'Clear All Cache',
+                            style: TextStyle(color: Utils.primaryColor),
+                          ),
+                          content: const Text(
+                              'Do You Really Want To Clear All Media Cache ?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () async{
+                                AudioPlayer().clearCache();
+                                Navigator.pop(context);
+                              },
+                              child: Text(
+                                'Yes',
+                                style: TextStyle(
+                                    fontFamily: 'pm',
+                                    color: Utils.primaryColor),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text('No',
+                                  style: TextStyle(
+                                      fontFamily: 'pm', color: Colors.black)),
+                            )
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Iconsax.menu),
+                  itemBuilder: (context) => popUpChoices
+                      .map(
+                        (choice) => PopupMenuItem(
+                          value: choice,
+                          child: Row(
+                            children: [
+                              Text(
+                                choice.title,
+                                maxLines: 1,
+                                style: const TextStyle(
+                                    fontSize: 14,
+                                    overflow: TextOverflow.ellipsis),
+                              ),
+                              const Spacer(),
+                              Icon(
+                                choice.icon,
+                                color: Utils.primaryColor,
+                                size: 20,
+                              )
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+                )
+              ],
               title: const Text(
                 'Radio Javan Downloader',
                 style: TextStyle(fontSize: 18, fontFamily: 'pm'),
@@ -146,9 +226,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 20,
                 ),
                 if (musicListProvider.musicList.isNotEmpty) ...[
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children: [
                       SizedBox(
                         width: 24,
                       ),
@@ -173,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: ListView.builder(
                         itemCount: musicListProvider.musicList.length,
                         itemBuilder: (context, index) {
-                          return MusicItem(
+                          return MusicItem(audioPlayer: audioPlayer,
                             media: musicListProvider.musicList[index],
                           );
                         }),
@@ -181,10 +261,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
                 Visibility(
                   visible: isLoading,
-                  child: Expanded(
+                  child: const Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Text(
                           'Getting Music List...',
                           style: TextStyle(fontSize: 18, fontFamily: 'pb'),
@@ -200,4 +280,11 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
+
+class CustomPopupMenu {
+  CustomPopupMenu({required this.title, required this.icon});
+
+  String title;
+  IconData icon;
 }

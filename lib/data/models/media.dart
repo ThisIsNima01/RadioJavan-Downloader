@@ -4,6 +4,7 @@ class Media {
   String artist;
   String song;
   String photo;
+  double duration;
 
   Media({
     required this.audioLink,
@@ -11,5 +12,6 @@ class Media {
     required this.artist,
     required this.song,
     required this.photo,
+    required this.duration,
   });
 }

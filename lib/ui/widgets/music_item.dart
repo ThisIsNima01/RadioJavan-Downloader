@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:rj_downloader/data/models/media.dart';
 import 'package:skeletons/skeletons.dart';
 
@@ -10,10 +11,12 @@ import '../screens/music_screen.dart';
 
 class MusicItem extends StatefulWidget {
   Media media;
+  AudioPlayer audioPlayer;
 
   MusicItem({
     super.key,
     required this.media,
+    required this.audioPlayer
   });
 
   @override
@@ -53,8 +56,14 @@ class _MusicItemState extends State<MusicItem> {
           currentFocus.unfocus();
         }
 
+        // ProgressiveAudioSource prevAudioSource = widget.audioPlayer.audioSource as ProgressiveAudioSource;
+        // ProgressiveAudioSource newProgressiveAudioSource = ProgressiveAudioSource(prevAudioSource.uri,tag: '${widget.media.artist} ${widget.media.song}');
+        // widget.audioPlayer.setAudioSource(newProgressiveAudioSource);
+
+
+
         Get.to(
-            ()=> MusicScreen(
+            ()=> MusicScreen(audioPlayer: widget.audioPlayer,
               media: widget.media,
               onDownloadComplete:() {
                 Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
