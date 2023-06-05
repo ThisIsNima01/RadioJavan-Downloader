@@ -52,8 +52,8 @@ class _MusicScreenState extends State<MusicScreen> {
             isDownloaded = true;
           });
         } else {
-            _audioPlayer.dynamicSet(
-                url: widget.media.audioLink, pushIfNotExisted: true);
+          _audioPlayer.dynamicSet(
+              url: widget.media.audioLink, pushIfNotExisted: true);
         }
       });
     });
@@ -82,6 +82,11 @@ class _MusicScreenState extends State<MusicScreen> {
         child: Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
+            leading: IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Iconsax.arrow_left, size: 30)),
             title: const Text(
               'Download Media',
               style: TextStyle(fontFamily: 'pb', fontSize: 18),
@@ -120,17 +125,20 @@ class _MusicScreenState extends State<MusicScreen> {
                       const SizedBox(
                         height: 20,
                       ),
-                      Text(
-                        widget.media.song,
-                        maxLines: 1,
-                        style: const TextStyle(
-                            shadows: [
-                              Shadow(color: Colors.black, blurRadius: 12),
-                            ],
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontFamily: 'pb',
-                            overflow: TextOverflow.ellipsis),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Text(
+                          widget.media.song,
+                          maxLines: 1,
+                          style: const TextStyle(
+                              shadows: [
+                                Shadow(color: Colors.black, blurRadius: 12),
+                              ],
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontFamily: 'pb',
+                              overflow: TextOverflow.ellipsis),
+                        ),
                       ),
                       const SizedBox(
                         height: 8,
@@ -218,8 +226,10 @@ class _MusicScreenState extends State<MusicScreen> {
                               width: 20,
                             ),
                             AudioPlayerControl(
-                                audioPlayer: _audioPlayer,
-                                isDownloaded: isDownloaded,media: widget.media,),
+                              audioPlayer: _audioPlayer,
+                              isDownloaded: isDownloaded,
+                              media: widget.media,
+                            ),
                             const SizedBox(
                               width: 20,
                             ),
