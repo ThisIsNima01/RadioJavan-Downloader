@@ -6,7 +6,6 @@ import 'package:on_audio_query/on_audio_query.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rj_downloader/data/models/media.dart';
 
-
 class Utils {
   static Color primaryColor = const Color(0xffE21221);
 
@@ -53,7 +52,10 @@ class Utils {
       await Permission.audio.request().isGranted &&
       await Permission.videos.request().isGranted;
 
-  static Future<bool> isAudioInCache(AudioPlayer audioPlayer, String url) async => await audioPlayer.existedInLocal(url: url);
+  static Future<bool> isAudioInCache(
+          AudioPlayer audioPlayer, String url) async =>
+      await audioPlayer.existedInLocal(url: url);
 
-  static String currentAudioSourceUri = '';
+  static void playMediaIfNotPlaying(AudioPlayer audioPlayer) =>
+      !audioPlayer.playing ? audioPlayer.play() : null;
 }

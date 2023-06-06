@@ -52,10 +52,6 @@ class _MusicItemState extends State<MusicItem> {
           currentFocus.unfocus();
         }
 
-        // ProgressiveAudioSource prevAudioSource = widget.audioPlayer.audioSource as ProgressiveAudioSource;
-        // ProgressiveAudioSource newProgressiveAudioSource = ProgressiveAudioSource(prevAudioSource.uri,tag: '${widget.media.artist} ${widget.media.song}');
-        // widget.audioPlayer.setAudioSource(newProgressiveAudioSource);
-
         Get.to(
             () => MusicScreen(
                   audioPlayer: widget.audioPlayer,
@@ -142,7 +138,7 @@ class _MusicItemState extends State<MusicItem> {
                           Text(
                             widget.media.artist,
                             maxLines: 1,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
                                 color: Colors.black54),
@@ -151,7 +147,7 @@ class _MusicItemState extends State<MusicItem> {
                       ),
                     ),
                     const Spacer(),
-                    Icon(Iconsax.arrow_right),
+                    const Icon(Iconsax.arrow_right),
                     const SizedBox(
                       width: 8,
                     )
@@ -169,7 +165,7 @@ class _MusicItemState extends State<MusicItem> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Container(
+                child: SizedBox(
                   width: 32,
                   height: 32,
                   child: Icon(

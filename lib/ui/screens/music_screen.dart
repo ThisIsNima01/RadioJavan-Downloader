@@ -2,20 +2,19 @@ import 'dart:ui';
 
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_cache/just_audio_cache.dart';
-import 'package:open_file/open_file.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:rj_downloader/config/global/utils/utils.dart';
-import 'package:rj_downloader/config/services/remote/api_service.dart';
 import 'package:rj_downloader/data/models/media.dart';
 import 'package:rj_downloader/data/providers/music_state_provider.dart';
 import 'package:rj_downloader/ui/audio_player_control.dart';
 import 'package:rxdart/streams.dart';
+
+import '../../data/models/position.dart';
+import '../widgets/option_generator.dart';
 
 class MusicScreen extends StatefulWidget {
   final Media media;
@@ -34,7 +33,6 @@ class MusicScreen extends StatefulWidget {
 }
 
 class _MusicScreenState extends State<MusicScreen> {
-  // final AudioPlayer _audioPlayer = AudioPlayer();
   AudioPlayer _audioPlayer = AudioPlayer();
   bool isDownloaded = false;
   bool isSame = false;
@@ -76,6 +74,8 @@ class _MusicScreenState extends State<MusicScreen> {
         }
       });
     });
+
+    Utils.playMediaIfNotPlaying(_audioPlayer);
 
     super.initState();
   }
@@ -278,218 +278,6 @@ class _MusicScreenState extends State<MusicScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class PositionData {
-  final Duration position;
-  final Duration bufferedPosition;
-  final Duration duration;
-
-  const PositionData(this.position, this.bufferedPosition, this.duration);
-}
-
-class OptionGenerator extends StatefulWidget {
-  final Media media;
-  final MusicStateProvider musicState;
-  final String mediaType;
-  final Function() onDownloadComplete;
-
-  const OptionGenerator(
-      {Key? key,
-      required this.media,
-      required this.musicState,
-      required this.mediaType,
-      required this.onDownloadComplete})
-      : super(key: key);
-
-  @override
-  State<OptionGenerator> createState() => _OptionGeneratorState();
-}
-
-class _OptionGeneratorState extends State<OptionGenerator> {
-  CancelToken cancelToken = CancelToken();
-
-  @override
-  void initState() {
-    Utils.checkIfFileExistsAlready(widget.media, widget.mediaType)
-        .then((result) {
-      setState(() {
-        if (result) {
-          widget.musicState.isDownloaded = true;
-        }
-      });
-    });
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (widget.musicState.isDownloaded && widget.mediaType == '.mp4') ...{
-          PlayButton(
-            mediaType: widget.mediaType,
-            media: widget.media,
-          )
-        },
-        if (!widget.musicState.isDownloaded &&
-            !widget.musicState.isDownloading) ...{
-          DownloadButton(
-              media: widget.media,
-              provider: widget.musicState,
-              mediaType: widget.mediaType,
-              cancelToken: cancelToken,
-              onDownloadComplete: widget.onDownloadComplete),
-        },
-        if (widget.musicState.isDownloading) ...{
-          DownloadProgressBar(widget: widget, cancelToken: cancelToken),
-        },
-      ],
-    );
-  }
-}
-
-class DownloadProgressBar extends StatefulWidget {
-  final OptionGenerator widget;
-  final CancelToken cancelToken;
-  const DownloadProgressBar({
-    super.key,
-    required this.widget,
-    required this.cancelToken,
-  });
-
-  @override
-  State<DownloadProgressBar> createState() => _DownloadProgressBarState();
-}
-
-class _DownloadProgressBarState extends State<DownloadProgressBar> {
-  @override
-  Widget build(BuildContext context) {
-    return CircularPercentIndicator(
-      radius: 20,
-      curve: Curves.easeIn,
-      backgroundColor: Utils.primaryColor.withOpacity(0.3),
-      percent: widget.widget.musicState.progressPercent,
-      progressColor: Utils.primaryColor,
-      center: Text(
-        '${widget.widget.musicState.progressText}%',
-        style: const TextStyle(fontSize: 11, fontFamily: 'pb'),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    if (!widget.widget.musicState.isDownloaded) {
-      widget.cancelToken.cancel('Quited While Downloading');
-    }
-    super.dispose();
-  }
-}
-
-class PlayButton extends StatelessWidget {
-  final Media media;
-  final String mediaType;
-
-  const PlayButton({Key? key, required this.media, required this.mediaType})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
-        if (await Utils.handlePlayingMediaPermissions()) {
-          await OpenFile.open(
-              '/storage/emulated/0/Music/rj/${Utils.getDirectoryNameByMediaFormat(mediaType)}/${media.artist} - ${media.song}$mediaType');
-        }
-      },
-      child: SizedBox(
-        height: 60,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Icon(
-              mediaType == '.mp3' ? Iconsax.music : Iconsax.video,
-              size: 32,
-            ),
-            const Text(
-              'Play',
-              style: TextStyle(
-                  fontFamily: 'pb', fontSize: 12, color: Colors.green),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class DownloadButton extends StatelessWidget {
-  final Media media;
-  final MusicStateProvider provider;
-  final String mediaType;
-  final CancelToken cancelToken;
-  final Function() onDownloadComplete;
-
-  const DownloadButton(
-      {Key? key,
-      required this.media,
-      required this.provider,
-      required this.mediaType,
-      required this.cancelToken,
-      required this.onDownloadComplete})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
-        provider.isDownloading = true;
-
-        await ApiService.downloadMedia(media, (count, total) {
-          provider.progressText = ((count / total) * 100).toStringAsFixed(0);
-          provider.progressPercent = (count / total);
-
-          if (count == total) {
-            onDownloadComplete();
-            // FToast fToast = FToast();
-            // fToast.init(context);
-
-            // fToast.showToast(
-            //   toastDuration: const Duration(seconds: 3),
-            //   child: Container(
-            //     padding:
-            //         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            //     decoration: BoxDecoration(
-            //       color: Colors.green,
-            //       borderRadius: BorderRadius.circular(20),
-            //     ),
-            //     child: Text(
-            //       '${Utils.getDirectoryNameByMediaFormat(mediaType).capitalizeFirst} Downloaded Successfully',
-            //       style: const TextStyle(color: Colors.white, fontFamily: 'pm'),
-            //     ),
-            //   ),
-            // );
-            provider.isDownloaded = true;
-            provider.isDownloading = false;
-          }
-        }, mediaType, cancelToken);
-      },
-      child: Column(
-        children: [
-          Icon(
-            mediaType == '.mp3' ? Iconsax.music : Iconsax.video,
-            size: 32,
-          ),
-          const Text(
-            'Download',
-            style: TextStyle(fontFamily: 'pb', fontSize: 10),
-          ),
-        ],
       ),
     );
   }
