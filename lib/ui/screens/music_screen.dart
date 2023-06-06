@@ -4,8 +4,6 @@ import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_cache/just_audio_cache.dart';
@@ -20,11 +18,11 @@ import 'package:rj_downloader/ui/audio_player_control.dart';
 import 'package:rxdart/streams.dart';
 
 class MusicScreen extends StatefulWidget {
-  Media media;
-  Function() onDownloadComplete;
-  AudioPlayer audioPlayer;
+  final Media media;
+  final Function() onDownloadComplete;
+  final AudioPlayer audioPlayer;
 
-  MusicScreen(
+  const MusicScreen(
       {Key? key,
       required this.media,
       required this.onDownloadComplete,
@@ -54,35 +52,33 @@ class _MusicScreenState extends State<MusicScreen> {
     if (_audioPlayer.audioSource != null) {
       audioSource = _audioPlayer.audioSource as ProgressiveAudioSource;
       isSame = audioSource.duration?.inSeconds.toString() ==
-              widget.media.duration.toString().substring(0, 3);
+          widget.media.duration.toString().substring(0, 3);
     }
 
-      Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
-        setState(() {
-          if (result) {
-            setState(() {
-              isDownloaded = true;
-            });
+    Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
+      setState(() {
+        if (result) {
+          setState(() {
+            isDownloaded = true;
+          });
 
-            if (isSame) {
-              return;
-            }
-            _audioPlayer.setFilePath(
-                '/storage/emulated/0/Music/rj/audio/${widget.media.artist} - ${widget.media.song}.mp3');
-          } else {
-            if (isSame) {
-              return;
-            }
-            _audioPlayer.dynamicSet(
-                url: widget.media.audioLink, pushIfNotExisted: true);
+          if (isSame) {
+            return;
           }
-        });
+          _audioPlayer.setFilePath(
+              '/storage/emulated/0/Music/rj/audio/${widget.media.artist} - ${widget.media.song}.mp3');
+        } else {
+          if (isSame) {
+            return;
+          }
+          _audioPlayer.dynamicSet(
+              url: widget.media.audioLink, pushIfNotExisted: true);
+        }
       });
-
+    });
 
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -296,12 +292,12 @@ class PositionData {
 }
 
 class OptionGenerator extends StatefulWidget {
-  Media media;
-  MusicStateProvider musicState;
-  String mediaType;
-  Function() onDownloadComplete;
+  final Media media;
+  final MusicStateProvider musicState;
+  final String mediaType;
+  final Function() onDownloadComplete;
 
-  OptionGenerator(
+  const OptionGenerator(
       {Key? key,
       required this.media,
       required this.musicState,
@@ -358,14 +354,13 @@ class _OptionGeneratorState extends State<OptionGenerator> {
 }
 
 class DownloadProgressBar extends StatefulWidget {
-  DownloadProgressBar({
+  final OptionGenerator widget;
+  final CancelToken cancelToken;
+  const DownloadProgressBar({
     super.key,
     required this.widget,
     required this.cancelToken,
   });
-
-  OptionGenerator widget;
-  CancelToken cancelToken;
 
   @override
   State<DownloadProgressBar> createState() => _DownloadProgressBarState();
@@ -397,10 +392,10 @@ class _DownloadProgressBarState extends State<DownloadProgressBar> {
 }
 
 class PlayButton extends StatelessWidget {
-  Media media;
-  String mediaType;
+  final Media media;
+  final String mediaType;
 
-  PlayButton({Key? key, required this.media, required this.mediaType})
+  const PlayButton({Key? key, required this.media, required this.mediaType})
       : super(key: key);
 
   @override
@@ -434,13 +429,13 @@ class PlayButton extends StatelessWidget {
 }
 
 class DownloadButton extends StatelessWidget {
-  Media media;
-  MusicStateProvider provider;
-  String mediaType;
-  CancelToken cancelToken;
-  Function() onDownloadComplete;
+  final Media media;
+  final MusicStateProvider provider;
+  final String mediaType;
+  final CancelToken cancelToken;
+  final Function() onDownloadComplete;
 
-  DownloadButton(
+  const DownloadButton(
       {Key? key,
       required this.media,
       required this.provider,
@@ -463,7 +458,6 @@ class DownloadButton extends StatelessWidget {
             onDownloadComplete();
             // FToast fToast = FToast();
             // fToast.init(context);
-
 
             // fToast.showToast(
             //   toastDuration: const Duration(seconds: 3),
