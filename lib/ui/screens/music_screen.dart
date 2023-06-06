@@ -18,11 +18,11 @@ import 'package:rj_downloader/ui/audio_player_control.dart';
 import 'package:rxdart/streams.dart';
 
 class MusicScreen extends StatefulWidget {
-  Media media;
-  Function() onDownloadComplete;
-  AudioPlayer audioPlayer;
+  final Media media;
+  final Function() onDownloadComplete;
+  final AudioPlayer audioPlayer;
 
-  MusicScreen(
+  const MusicScreen(
       {Key? key,
       required this.media,
       required this.onDownloadComplete,
@@ -292,12 +292,12 @@ class PositionData {
 }
 
 class OptionGenerator extends StatefulWidget {
-  Media media;
-  MusicStateProvider musicState;
-  String mediaType;
-  Function() onDownloadComplete;
+  final Media media;
+  final MusicStateProvider musicState;
+  final String mediaType;
+  final Function() onDownloadComplete;
 
-  OptionGenerator(
+  const OptionGenerator(
       {Key? key,
       required this.media,
       required this.musicState,
@@ -354,14 +354,13 @@ class _OptionGeneratorState extends State<OptionGenerator> {
 }
 
 class DownloadProgressBar extends StatefulWidget {
-  DownloadProgressBar({
+  final OptionGenerator widget;
+  final CancelToken cancelToken;
+  const DownloadProgressBar({
     super.key,
     required this.widget,
     required this.cancelToken,
   });
-
-  OptionGenerator widget;
-  CancelToken cancelToken;
 
   @override
   State<DownloadProgressBar> createState() => _DownloadProgressBarState();
@@ -393,10 +392,10 @@ class _DownloadProgressBarState extends State<DownloadProgressBar> {
 }
 
 class PlayButton extends StatelessWidget {
-  Media media;
-  String mediaType;
+  final Media media;
+  final String mediaType;
 
-  PlayButton({Key? key, required this.media, required this.mediaType})
+  const PlayButton({Key? key, required this.media, required this.mediaType})
       : super(key: key);
 
   @override
@@ -430,13 +429,13 @@ class PlayButton extends StatelessWidget {
 }
 
 class DownloadButton extends StatelessWidget {
-  Media media;
-  MusicStateProvider provider;
-  String mediaType;
-  CancelToken cancelToken;
-  Function() onDownloadComplete;
+  final Media media;
+  final MusicStateProvider provider;
+  final String mediaType;
+  final CancelToken cancelToken;
+  final Function() onDownloadComplete;
 
-  DownloadButton(
+  const DownloadButton(
       {Key? key,
       required this.media,
       required this.provider,

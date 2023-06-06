@@ -10,14 +10,10 @@ import '../../config/global/utils/utils.dart';
 import '../screens/music_screen.dart';
 
 class MusicItem extends StatefulWidget {
-  Media media;
-  AudioPlayer audioPlayer;
+  final Media media;
+  final AudioPlayer audioPlayer;
 
-  MusicItem({
-    super.key,
-    required this.media,
-    required this.audioPlayer
-  });
+  const MusicItem({super.key, required this.media, required this.audioPlayer});
 
   @override
   State<MusicItem> createState() => _MusicItemState();
@@ -60,34 +56,34 @@ class _MusicItemState extends State<MusicItem> {
         // ProgressiveAudioSource newProgressiveAudioSource = ProgressiveAudioSource(prevAudioSource.uri,tag: '${widget.media.artist} ${widget.media.song}');
         // widget.audioPlayer.setAudioSource(newProgressiveAudioSource);
 
-
-
         Get.to(
-            ()=> MusicScreen(audioPlayer: widget.audioPlayer,
-              media: widget.media,
-              onDownloadComplete:() {
-                Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
-                  setState(() {
-                    if (result) {
-                      isAudioDownloaded = true;
-                    }
-                  });
-                });
+            () => MusicScreen(
+                  audioPlayer: widget.audioPlayer,
+                  media: widget.media,
+                  onDownloadComplete: () {
+                    Utils.checkIfFileExistsAlready(widget.media, '.mp3')
+                        .then((result) {
+                      setState(() {
+                        if (result) {
+                          isAudioDownloaded = true;
+                        }
+                      });
+                    });
 
-                Utils.checkIfFileExistsAlready(widget.media, '.mp4').then((result) {
-                  setState(() {
-                    if (result) {
-                      isVideoDownloaded = true;
-                    }
-                  });
-                });
-              },
-            ),
+                    Utils.checkIfFileExistsAlready(widget.media, '.mp4')
+                        .then((result) {
+                      setState(() {
+                        if (result) {
+                          isVideoDownloaded = true;
+                        }
+                      });
+                    });
+                  },
+                ),
             transition: Transition.size,
             fullscreenDialog: true,
             duration: const Duration(milliseconds: 600),
-            curve: Curves.easeIn
-        );
+            curve: Curves.easeIn);
       },
       child: Stack(
         alignment: Alignment.topRight,
@@ -117,7 +113,7 @@ class _MusicItemState extends State<MusicItem> {
                           width: 72,
                           height: 72,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => SkeletonAvatar(),
+                          placeholder: (context, url) => const SkeletonAvatar(),
                           imageUrl: widget.media.photo,
                         ),
                       ),
@@ -133,7 +129,7 @@ class _MusicItemState extends State<MusicItem> {
                             height: 16,
                           ),
                           Text(
-                            widget.media.song ?? 'f',
+                            widget.media.song,
                             maxLines: 1,
                             style: const TextStyle(
                                 fontSize: 16,
@@ -146,7 +142,10 @@ class _MusicItemState extends State<MusicItem> {
                           Text(
                             widget.media.artist,
                             maxLines: 1,
-                            style: TextStyle(fontSize: 12,fontWeight: FontWeight.w400,color: Colors.black54),
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.black54),
                           ),
                         ],
                       ),
@@ -161,7 +160,7 @@ class _MusicItemState extends State<MusicItem> {
               ),
             ),
           ),
-          if (widget.media.audioLink != null) ...{
+          if (widget.media.audioLink.isNotEmpty) ...{
             Positioned(
               right: 24,
               child: Card(
@@ -191,7 +190,7 @@ class _MusicItemState extends State<MusicItem> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Container(
+                child: SizedBox(
                   width: 32,
                   height: 32,
                   child: Icon(

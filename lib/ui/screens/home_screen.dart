@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:just_audio/just_audio.dart';
@@ -73,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               'Do You Really Want To Clear All Media Cache ?'),
                           actions: [
                             TextButton(
-                              onPressed: () async{
+                              onPressed: () async {
                                 AudioPlayer().clearCache();
                                 Navigator.pop(context);
                               },
@@ -253,7 +251,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: ListView.builder(
                         itemCount: musicListProvider.musicList.length,
                         itemBuilder: (context, index) {
-                          return MusicItem(audioPlayer: audioPlayer,
+                          return MusicItem(
+                            audioPlayer: audioPlayer,
                             media: musicListProvider.musicList[index],
                           );
                         }),
