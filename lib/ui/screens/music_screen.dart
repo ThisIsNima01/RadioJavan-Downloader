@@ -4,8 +4,6 @@ import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_cache/just_audio_cache.dart';
@@ -54,35 +52,33 @@ class _MusicScreenState extends State<MusicScreen> {
     if (_audioPlayer.audioSource != null) {
       audioSource = _audioPlayer.audioSource as ProgressiveAudioSource;
       isSame = audioSource.duration?.inSeconds.toString() ==
-              widget.media.duration.toString().substring(0, 3);
+          widget.media.duration.toString().substring(0, 3);
     }
 
-      Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
-        setState(() {
-          if (result) {
-            setState(() {
-              isDownloaded = true;
-            });
+    Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
+      setState(() {
+        if (result) {
+          setState(() {
+            isDownloaded = true;
+          });
 
-            if (isSame) {
-              return;
-            }
-            _audioPlayer.setFilePath(
-                '/storage/emulated/0/Music/rj/audio/${widget.media.artist} - ${widget.media.song}.mp3');
-          } else {
-            if (isSame) {
-              return;
-            }
-            _audioPlayer.dynamicSet(
-                url: widget.media.audioLink, pushIfNotExisted: true);
+          if (isSame) {
+            return;
           }
-        });
+          _audioPlayer.setFilePath(
+              '/storage/emulated/0/Music/rj/audio/${widget.media.artist} - ${widget.media.song}.mp3');
+        } else {
+          if (isSame) {
+            return;
+          }
+          _audioPlayer.dynamicSet(
+              url: widget.media.audioLink, pushIfNotExisted: true);
+        }
       });
-
+    });
 
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -463,7 +459,6 @@ class DownloadButton extends StatelessWidget {
             onDownloadComplete();
             // FToast fToast = FToast();
             // fToast.init(context);
-
 
             // fToast.showToast(
             //   toastDuration: const Duration(seconds: 3),
