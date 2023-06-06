@@ -8,7 +8,7 @@ import '../../../data/models/media.dart';
 class ApiService {
   static Dio dio = Dio(BaseOptions(baseUrl: ApiConstants.apiUrl));
 
- static Future<List<Music>> getMusicFromServer(String musicName) async {
+  static Future<List<Music>> getMusicFromServer(String musicName) async {
     try {
       var response = await dio.get('q=$musicName');
 
@@ -35,7 +35,7 @@ class ApiService {
     await Utils.createDirectory(Utils.getDirectoryNameByMediaFormat(mediaType));
 
     await ApiService.dio.download(
-      mediaType == '.mp4' ? media.videoLink! : media.audioLink!,
+      mediaType == '.mp4' ? media.videoLink! : media.audioLink,
       '/storage/emulated/0/Music/rj/${Utils.getDirectoryNameByMediaFormat(mediaType)}/${media.artist} - ${media.song}$mediaType',
       onReceiveProgress: (count, total) {
         onReceiveProgress(count, total);
