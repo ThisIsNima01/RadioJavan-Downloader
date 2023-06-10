@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_cache/just_audio_cache.dart';
@@ -45,6 +46,8 @@ class _MusicScreenState extends State<MusicScreen> {
 
   @override
   void initState() {
+    FToast fToast = FToast();
+    fToast.init(context);
     _audioPlayer = widget.audioPlayer;
     ProgressiveAudioSource? audioSource;
     if (_audioPlayer.audioSource != null) {
@@ -56,9 +59,7 @@ class _MusicScreenState extends State<MusicScreen> {
     Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
       setState(() {
         if (result) {
-          setState(() {
-            isDownloaded = true;
-          });
+          isDownloaded = true;
 
           if (isSame) {
             return;
@@ -75,7 +76,12 @@ class _MusicScreenState extends State<MusicScreen> {
       });
     });
 
-    Utils.playMediaIfNotPlaying(_audioPlayer);
+    Utils.isAudioInCache(widget.audioPlayer, widget.media.audioLink).then(
+        (value) => {Utils.showPlayingStateToast(isDownloaded, value, fToast)});
+
+    if (!Utils.isMediaPlaying(_audioPlayer)) {
+      _audioPlayer.play();
+    }
 
     super.initState();
   }
@@ -176,11 +182,12 @@ class _MusicScreenState extends State<MusicScreen> {
                   flex: 2,
                   child: Container(
                     decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(30),
-                          topRight: Radius.circular(30),
-                        )),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
+                      ),
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,

@@ -20,7 +20,6 @@ class ApiService {
 
       return musicList;
     } catch (e) {
-      print(e);
       return [];
     }
   }

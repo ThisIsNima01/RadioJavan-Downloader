@@ -6,7 +6,7 @@ import 'package:rj_downloader/config/global/utils/utils.dart';
 import 'package:rj_downloader/data/models/media.dart';
 
 class AudioPlayerControl extends StatefulWidget {
-  AudioPlayerControl(
+  const AudioPlayerControl(
       {Key? key,
       required this.audioPlayer,
       required this.isDownloaded,
@@ -14,8 +14,8 @@ class AudioPlayerControl extends StatefulWidget {
       : super(key: key);
 
   final AudioPlayer audioPlayer;
-  bool isDownloaded;
-  Media media;
+  final bool isDownloaded;
+  final Media media;
 
   @override
   State<AudioPlayerControl> createState() => _AudioPlayerControlState();
@@ -24,6 +24,7 @@ class AudioPlayerControl extends StatefulWidget {
 class _AudioPlayerControlState extends State<AudioPlayerControl> {
   bool isFirstTime = true;
   bool? isAudioInCache;
+  FToast fToast = FToast();
 
   @override
   void initState() {
@@ -34,14 +35,19 @@ class _AudioPlayerControlState extends State<AudioPlayerControl> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(width: 66,height: 66,
+    return SizedBox(
+      width: 66,
+      height: 66,
       child: StreamBuilder<PlayerState>(
         stream: widget.audioPlayer.playerStateStream,
         builder: (context, snapshot) {
           final playerState = snapshot.data;
           final processingState = playerState?.processingState;
           final playing = playerState?.playing;
-          if ((processingState == ProcessingState.buffering || processingState == ProcessingState.loading) && (!isAudioInCache! && !widget.isDownloaded)) {
+
+          if ((processingState == ProcessingState.buffering ||
+                  processingState == ProcessingState.loading) &&
+              (!isAudioInCache! && !widget.isDownloaded)) {
             return SizedBox(
               height: 42,
               width: 42,
@@ -58,44 +64,14 @@ class _AudioPlayerControlState extends State<AudioPlayerControl> {
               onPressed: () async {
                 widget.audioPlayer.play();
 
-                FToast fToast = FToast();
                 fToast.init(context);
 
                 if (!isFirstTime) {
                   return;
                 }
 
-                if (!widget.isDownloaded && !isAudioInCache!) {
-                  fToast.showToast(
-                    child: Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        'Now Streaming Online',
-                        style: TextStyle(color: Colors.white, fontFamily: 'pm'),
-                      ),
-                    ),
-                  );
-                } else {
-                  fToast.showToast(
-                    child: Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        'Now Playing Offline',
-                        style: TextStyle(color: Colors.white, fontFamily: 'pm'),
-                      ),
-                    ),
-                  );
-                }
+                // Utils.showPlayingStateToast(
+                //     widget.isDownloaded, isAudioInCache!, fToast);
                 isFirstTime = false;
               },
               iconSize: 50,

@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_cache/just_audio_cache.dart';
 import 'package:on_audio_query/on_audio_query.dart';
@@ -15,12 +17,10 @@ class Utils {
     audioQuery.scanMedia('/storage/emulated/0/Music/rj');
   }
 
-  static Future<bool> checkIfFileExistsAlready(
-      Media music, String mediaType) async {
-    return File(
-            '/storage/emulated/0/Music/rj/${getDirectoryNameByMediaFormat(mediaType)}/${music.artist} - ${music.song}$mediaType')
-        .exists();
-  }
+  static Future<
+      bool> checkIfFileExistsAlready(Media music, String mediaType) => File(
+          '/storage/emulated/0/Music/rj/${getDirectoryNameByMediaFormat(mediaType)}/${music.artist} - ${music.song}$mediaType')
+      .exists();
 
   static Future<void> createDirectory(String dirName) async {
     if (!await Directory('/storage/emulated/0/Music/rj').exists()) {
@@ -56,6 +56,21 @@ class Utils {
           AudioPlayer audioPlayer, String url) async =>
       await audioPlayer.existedInLocal(url: url);
 
-  static void playMediaIfNotPlaying(AudioPlayer audioPlayer) =>
-      !audioPlayer.playing ? audioPlayer.play() : null;
+  static bool isMediaPlaying(AudioPlayer audioPlayer) => audioPlayer.playing;
+
+  static showPlayingStateToast(
+          bool isMediaDownloaded, bool isMediaInCache, FToast fToast) =>
+      fToast.showToast(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.green,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            !isMediaDownloaded && !isMediaInCache ? 'Now Streaming Online' : 'Now Playing Offline',
+            style: const TextStyle(color: Colors.white, fontFamily: 'pm'),
+          ),
+        ),
+      );
 }
