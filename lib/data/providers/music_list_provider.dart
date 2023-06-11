@@ -28,7 +28,8 @@ class MusicListProvider extends ChangeNotifier {
                   song: music.song,
                   photo: music.photo,
                   audioLink: music.link,
-                  duration: music.duration),
+                  duration: music.duration,
+                  id: music.id),
             );
           }
         } else {

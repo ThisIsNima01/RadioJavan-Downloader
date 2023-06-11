@@ -1,4 +1,5 @@
 class Media {
+  int id;
   String audioLink;
   String? videoLink;
   String artist;
@@ -13,5 +14,6 @@ class Media {
     required this.song,
     required this.photo,
     required this.duration,
+    required this.id,
   });
 }

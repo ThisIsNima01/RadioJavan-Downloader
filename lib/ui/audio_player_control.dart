@@ -28,8 +28,7 @@ class _AudioPlayerControlState extends State<AudioPlayerControl> {
 
   @override
   void initState() {
-    Utils.isAudioInCache(widget.audioPlayer, widget.media.audioLink)
-        .then((value) => {isAudioInCache = value});
+    isAudioInCache = Utils.isAudioInCache(widget.media.id);
     super.initState();
   }
 

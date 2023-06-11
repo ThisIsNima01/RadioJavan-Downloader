@@ -14,7 +14,7 @@ class Utils {
   static scanNewMedia() async {
     await Permission.storage.request().isGranted;
     OnAudioQuery audioQuery = OnAudioQuery();
-    audioQuery.scanMedia('/storage/emulated/0/Music/rj');
+    audioQuery.scanMedia('/storage/emulated/0/Music/rj/audio');
   }
 
   static Future<
@@ -27,6 +27,10 @@ class Utils {
       await Directory('/storage/emulated/0/Music/rj').create();
     }
 
+    if (!await Directory('/storage/emulated/0/Music/rj/cached').exists()) {
+      await Directory('/storage/emulated/0/Music/rj/cached').create();
+    }
+
     if (!await Directory('/storage/emulated/0/Music/rj/$dirName').exists()) {
       await Directory('/storage/emulated/0/Music/rj/$dirName').create();
     }
@@ -37,12 +41,10 @@ class Utils {
 
   static Future<bool> requestMainPermissions() async {
     Map<Permission, PermissionStatus> statuses = await [
-      Permission.manageExternalStorage,
       Permission.storage,
     ].request();
 
-    if (statuses[Permission.manageExternalStorage]!.isDenied ||
-        statuses[Permission.storage]!.isDenied) {
+    if (statuses[Permission.storage]!.isDenied) {
       return false;
     }
     return true;
@@ -52,9 +54,7 @@ class Utils {
       await Permission.audio.request().isGranted &&
       await Permission.videos.request().isGranted;
 
-  static Future<bool> isAudioInCache(
-          AudioPlayer audioPlayer, String url) async =>
-      await audioPlayer.existedInLocal(url: url);
+  static bool isAudioInCache(int mediaId) => File('/storage/emulated/0/Music/rj/cached/cached-$mediaId.mp3').existsSync();
 
   static bool isMediaPlaying(AudioPlayer audioPlayer) => audioPlayer.playing;
 
@@ -68,7 +68,9 @@ class Utils {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            !isMediaDownloaded && !isMediaInCache ? 'Now Streaming Online' : 'Now Playing Offline',
+            !isMediaDownloaded && !isMediaInCache
+                ? 'Now Streaming Online'
+                : 'Now Playing Offline',
             style: const TextStyle(color: Colors.white, fontFamily: 'pm'),
           ),
         ),

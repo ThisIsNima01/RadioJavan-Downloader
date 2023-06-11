@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:just_audio_cache/just_audio_cache.dart';
 import 'package:provider/provider.dart';
 import 'package:rj_downloader/config/global/utils/utils.dart';
@@ -37,6 +38,7 @@ class _MusicScreenState extends State<MusicScreen> {
   AudioPlayer _audioPlayer = AudioPlayer();
   bool isDownloaded = false;
   bool isSame = false;
+  bool isInCache = false;
 
   Stream<PositionData> get _positionDataStream => CombineLatestStream.combine3(
       widget.audioPlayer.positionStream,
@@ -50,12 +52,18 @@ class _MusicScreenState extends State<MusicScreen> {
     fToast.init(context);
     _audioPlayer = widget.audioPlayer;
     ProgressiveAudioSource? audioSource;
+
+    isInCache = Utils.isAudioInCache(widget.media.id);
+
+    if (!isInCache) {
+      widget.audioPlayer.cacheFile(url: widget.media.audioLink,path: '/storage/emulated/0/Music/rj/cached/cached-${widget.media.id}.mp3');
+    }
+
     if (_audioPlayer.audioSource != null) {
       audioSource = _audioPlayer.audioSource as ProgressiveAudioSource;
       isSame = audioSource.duration?.inSeconds.toString() ==
           widget.media.duration.toString().substring(0, 3);
     }
-
     Utils.checkIfFileExistsAlready(widget.media, '.mp3').then((result) {
       setState(() {
         if (result) {
@@ -64,20 +72,55 @@ class _MusicScreenState extends State<MusicScreen> {
           if (isSame) {
             return;
           }
-          _audioPlayer.setFilePath(
-              '/storage/emulated/0/Music/rj/audio/${widget.media.artist} - ${widget.media.song}.mp3');
+          _audioPlayer.setAudioSource(
+            AudioSource.file(
+              '/storage/emulated/0/Music/rj/audio/${widget.media.artist} - ${widget.media.song}.mp3',
+              tag: MediaItem(
+                id: widget.media.id.toString(),
+                album: widget.media.artist,
+                title: widget.media.song,
+                artUri: Uri.parse(widget.media.photo),
+                artist: widget.media.artist,
+              ),
+            ),
+          );
         } else {
           if (isSame) {
             return;
           }
-          _audioPlayer.dynamicSet(
-              url: widget.media.audioLink, pushIfNotExisted: true);
+          if (isInCache) {
+            _audioPlayer.setAudioSource(
+              AudioSource.file(
+                '/storage/emulated/0/Music/rj/cached/cached-${widget.media.id}.mp3',
+                tag: MediaItem(
+                  id: widget.media.id.toString(),
+                  album: widget.media.artist,
+                  title: widget.media.song,
+                  artUri: Uri.parse(widget.media.photo),
+                  artist: widget.media.artist,
+                ),
+              ),
+            );
+            return;
+          }
+
+          _audioPlayer.setAudioSource(
+            AudioSource.uri(
+              Uri.parse(widget.media.audioLink),
+              tag: MediaItem(
+                id: widget.media.id.toString(),
+                album: widget.media.artist,
+                title: widget.media.song,
+                artUri: Uri.parse(widget.media.photo),
+              ),
+            ),
+          );
         }
       });
     });
-
-    Utils.isAudioInCache(widget.audioPlayer, widget.media.audioLink).then(
-        (value) => {Utils.showPlayingStateToast(isDownloaded, value, fToast)});
+    // if (!isSame) {
+    //   Utils.showPlayingStateToast(isDownloaded, isInCache, fToast);
+    // }
 
     if (!Utils.isMediaPlaying(_audioPlayer)) {
       _audioPlayer.play();
@@ -93,7 +136,6 @@ class _MusicScreenState extends State<MusicScreen> {
         image: DecorationImage(
           image: CachedNetworkImageProvider(widget.media.photo),
           fit: BoxFit.fill,
-          // repeat: ImageRepeat.repeatY,
         ),
       ),
       child: BackdropFilter(
