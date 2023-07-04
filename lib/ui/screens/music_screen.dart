@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:iconsax/iconsax.dart';
@@ -17,6 +18,8 @@ import 'package:rj_downloader/data/models/media.dart';
 import 'package:rj_downloader/data/providers/music_state_provider.dart';
 import 'package:rj_downloader/ui/audio_player_control.dart';
 import 'package:rxdart/streams.dart';
+import 'package:skeletons/skeletons.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../data/models/position.dart';
 import '../widgets/option_generator.dart';
@@ -25,13 +28,17 @@ class MusicScreen extends StatefulWidget {
   final Media media;
   final Function() onDownloadComplete;
   final AudioPlayer audioPlayer;
+  final bool isAudioDownloaded;
+  final bool isVideoDownloaded;
 
-  const MusicScreen(
-      {Key? key,
-      required this.media,
-      required this.onDownloadComplete,
-      required this.audioPlayer})
-      : super(key: key);
+  const MusicScreen({
+    Key? key,
+    required this.media,
+    required this.onDownloadComplete,
+    required this.audioPlayer,
+    required this.isAudioDownloaded,
+    required this.isVideoDownloaded,
+  }) : super(key: key);
 
   @override
   State<MusicScreen> createState() => _MusicScreenState();
@@ -45,6 +52,7 @@ class _MusicScreenState extends State<MusicScreen> {
   Directory? tempDir;
   FToast fToast = FToast();
   bool isLooping = AudioPlayerConfig.getIsLoop() ?? false;
+  bool isVideoPlaying = false;
 
   Stream<PositionData> get _positionDataStream => CombineLatestStream.combine3(
       widget.audioPlayer.positionStream,
@@ -150,6 +158,20 @@ class _MusicScreenState extends State<MusicScreen> {
           backgroundColor: Colors.transparent,
           appBar: AppBar(
             actions: [
+              if (widget.media.videoLink != null &&
+                  !widget.isVideoDownloaded) ...{
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isVideoPlaying = !isVideoPlaying;
+                      if (!isVideoPlaying) {
+                        widget.audioPlayer.play();
+                      }
+                    });
+                  },
+                  icon: const Icon(Iconsax.video),
+                ),
+              },
               IconButton(
                 onPressed: () async {
                   await AudioPlayerConfig.setIsLoop(!isLooping);
@@ -177,11 +199,11 @@ class _MusicScreenState extends State<MusicScreen> {
                     ),
                   );
                 },
-                icon:  Icon(
+                icon: Icon(
                   Iconsax.repeat,
                   color: isLooping ? Colors.amberAccent : null,
                 ),
-              )
+              ),
             ],
             leading: IconButton(
                 onPressed: () {
@@ -209,18 +231,20 @@ class _MusicScreenState extends State<MusicScreen> {
                           elevation: 10,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20)),
-                          child: Container(
-                            height: 280,
-                            width: 280,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: CachedNetworkImageProvider(
-                                    widget.media.photo),
-                              ),
-                            ),
-                          ),
+                          child: isVideoPlaying
+                              ? VidePlayer(url: widget.media.videoLink ?? '')
+                              : Container(
+                                  height: 280,
+                                  width: 280,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: CachedNetworkImageProvider(
+                                          widget.media.photo),
+                                    ),
+                                  ),
+                                ),
                         ),
                       ),
                     ],
@@ -355,6 +379,78 @@ class _MusicScreenState extends State<MusicScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class VidePlayer extends StatefulWidget {
+  final String url;
+
+  const VidePlayer({super.key, required this.url});
+
+  @override
+  State<VidePlayer> createState() => _VidePlayerState();
+}
+
+class _VidePlayerState extends State<VidePlayer> {
+  VideoPlayerController? _videoPlayerController;
+  ChewieController? _chewieController;
+  bool isPlaying = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _videoPlayerController =
+        VideoPlayerController.networkUrl(Uri.parse(widget.url));
+    _chewieController = ChewieController(
+        autoInitialize: true,
+        autoPlay: true,
+        allowMuting: true,
+        allowedScreenSleep: false,
+        videoPlayerController: _videoPlayerController!,
+        aspectRatio: 16 / 9);
+
+    _videoPlayerController!.addListener(() {
+      if (_videoPlayerController!.value.isInitialized && !isPlaying) {
+        setState(() {
+          isPlaying = true;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _videoPlayerController!.dispose();
+    _chewieController!.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: isPlaying
+          ? Chewie(
+              controller: _chewieController!,
+            )
+          : Stack(
+              fit: StackFit.expand,
+              children: [
+                SkeletonAvatar(
+                  style: SkeletonAvatarStyle(
+                    borderRadius: BorderRadius.circular(20),
+
+                  ),
+                ),
+                const Center(
+                  child: Text(
+                    'Loading...',
+                    style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

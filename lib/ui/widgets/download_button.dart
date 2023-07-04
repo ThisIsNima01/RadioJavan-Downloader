@@ -33,24 +33,6 @@ class DownloadButton extends StatelessWidget {
 
           if (count == total) {
             onDownloadComplete();
-            // FToast fToast = FToast();
-            // fToast.init(context);
-            //
-            // fToast.showToast(
-            //   toastDuration: const Duration(seconds: 3),
-            //   child: Container(
-            //     padding:
-            //         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            //     decoration: BoxDecoration(
-            //       color: Colors.green,
-            //       borderRadius: BorderRadius.circular(20),
-            //     ),
-            //     child: Text(
-            //       '${Utils.getDirectoryNameByMediaFormat(mediaType).capitalizeFirst} Downloaded Successfully',
-            //       style: const TextStyle(color: Colors.white, fontFamily: 'pm'),
-            //     ),
-            //   ),
-            // );
             provider.isDownloaded = true;
             provider.isDownloading = false;
           }

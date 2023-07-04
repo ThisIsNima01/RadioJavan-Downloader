@@ -234,33 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
                 if (musicListProvider.musicList.isNotEmpty) ...[
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 24,
-                      ),
-                      Text(
-                        'Your Music Search',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 18),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 12,
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Divider(color: Colors.black87, height: 1),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
                   Expanded(
                     child: FlipInX(
                       duration: const Duration(milliseconds: 1500),

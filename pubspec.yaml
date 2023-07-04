@@ -56,6 +56,8 @@ dependencies:
   url_launcher: ^6.1.11
   animate_do: ^3.0.2
   shared_preferences: ^2.2.0
+  video_player: ^2.7.0
+  chewie: ^1.6.0+1
 
 dev_dependencies:
   flutter_test:

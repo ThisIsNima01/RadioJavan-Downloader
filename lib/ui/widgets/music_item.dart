@@ -55,6 +55,8 @@ class _MusicItemState extends State<MusicItem> {
 
         Get.to(
             () => MusicScreen(
+                  isAudioDownloaded: isAudioDownloaded,
+                  isVideoDownloaded: isVideoDownloaded,
                   audioPlayer: widget.audioPlayer,
                   media: widget.media,
                   onDownloadComplete: () {
