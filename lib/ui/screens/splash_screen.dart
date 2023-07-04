@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:rj_downloader/config/global/constants/app_constants.dart';
 import 'package:rj_downloader/ui/screens/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -35,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffD80E0E),
+      backgroundColor: AppConstants.primaryColor,
       body: Column(
         children: [
           const SizedBox(

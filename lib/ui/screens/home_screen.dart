@@ -1,11 +1,13 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_cache/just_audio_cache.dart';
 import 'package:provider/provider.dart';
 import 'package:rj_downloader/config/global/constants/app_constants.dart';
-import 'package:rj_downloader/config/global/utils/utils.dart';
+import 'package:rj_downloader/config/services/local/audio_player_config.dart';
 import 'package:rj_downloader/ui/widgets/music_item.dart';
+import 'package:skeletons/skeletons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../config/services/remote/api_service.dart';
@@ -20,12 +22,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   TextEditingController textEditingController = TextEditingController();
-  bool isLoading = false;
   FocusNode searchFocusNode = FocusNode();
   AudioPlayer audioPlayer = AudioPlayer();
 
   @override
   void initState() {
+    audioPlayer.setLoopMode(AudioPlayerConfig.getIsLoop() ?? false ? LoopMode.all : LoopMode.off);
+
     searchFocusNode.addListener(() {
       setState(() {});
     });
@@ -51,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context, MusicListProvider musicListProvider, child) =>
             Scaffold(
           appBar: AppBar(
-              backgroundColor: Utils.primaryColor,
+              backgroundColor: AppConstants.primaryColor,
               actions: [
                 PopupMenuButton(
                   onSelected: (value) async {
@@ -65,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         builder: (context) => AlertDialog(
                           title: Text(
                             'Clear All Cache',
-                            style: TextStyle(color: Utils.primaryColor),
+                            style: TextStyle(color: AppConstants.primaryColor),
                           ),
                           content: const Text(
                               'Do You Really Want To Clear All Media Cache ?'),
@@ -79,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 'Yes',
                                 style: TextStyle(
                                     fontFamily: 'pm',
-                                    color: Utils.primaryColor),
+                                    color: AppConstants.primaryColor),
                               ),
                             ),
                             TextButton(
@@ -112,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               const Spacer(),
                               Icon(
                                 choice.icon,
-                                color: Utils.primaryColor,
+                                color: AppConstants.primaryColor,
                                 size: 20,
                               )
                             ],
@@ -149,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             decoration: BoxDecoration(
                               border: Border.all(
                                 color: searchFocusNode.hasFocus
-                                    ? Utils.primaryColor
+                                    ? AppConstants.primaryColor
                                     : Colors.white,
                                 width: 2,
                               ),
@@ -158,6 +161,21 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 2),
                             child: TextField(
+                              onSubmitted: (value) async{
+                                if (textEditingController.text.isEmpty) {
+                                  return;
+                                }
+
+                                searchFocusNode.unfocus();
+                                musicListProvider.musicList = [];
+                                musicListProvider.isLoading = true;
+
+                                musicListProvider.musicList =
+                                    await ApiService.getMusicFromServer(
+                                    textEditingController.text);
+
+                                musicListProvider.isLoading = false;
+                              },
                               focusNode: searchFocusNode,
                               controller: textEditingController,
                               decoration: const InputDecoration(
@@ -180,26 +198,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
                           searchFocusNode.unfocus();
                           musicListProvider.musicList = [];
-                          setState(() {
-                            isLoading = true;
-                          });
+                          musicListProvider.isLoading = true;
 
                           musicListProvider.musicList =
                               await ApiService.getMusicFromServer(
                                   textEditingController.text);
 
-                          setState(() {
-                            isLoading = false;
-                          });
+                          musicListProvider.isLoading = false;
                         },
                         child: Container(
                           height: 54,
                           width: 54,
                           decoration: BoxDecoration(
-                            color: Utils.primaryColor,
+                            color: AppConstants.primaryColor,
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          child: isLoading
+                          child: musicListProvider.isLoading
                               ? const Center(
                                   child: SizedBox(
                                     height: 24,
@@ -248,25 +262,39 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 20,
                   ),
                   Expanded(
-                    child: ListView.builder(
-                        itemCount: musicListProvider.musicList.length,
-                        itemBuilder: (context, index) {
-                          return MusicItem(
-                            audioPlayer: audioPlayer,
-                            media: musicListProvider.musicList[index],
-                          );
-                        }),
+                    child: FlipInX(
+                      duration: const Duration(milliseconds: 1500),
+                      child: ListView.builder(
+                          itemCount: musicListProvider.musicList.length,
+                          itemBuilder: (context, index) {
+                            return MusicItem(
+                              audioPlayer: audioPlayer,
+                              media: musicListProvider.musicList[index],
+                            );
+                          }),
+                    ),
                   )
                 ],
                 Visibility(
-                  visible: isLoading,
-                  child: const Expanded(
+                  visible: musicListProvider.isLoading,
+                  child: Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          'Getting Music List...',
-                          style: TextStyle(fontSize: 18, fontFamily: 'pb'),
+                        Expanded(
+                          child: SkeletonListView(
+                            scrollable: false,
+                            itemCount: 9,
+                            itemBuilder: (p0, p1) {
+                              return const SkeletonAvatar(
+                                style: SkeletonAvatarStyle(
+                                  // height: 100,
+                                  padding: EdgeInsets.symmetric(vertical: 12),
+                                ),
+                              );
+                            },
+                            // item: const SkeletonAvatar(),
+                          ),
                         )
                       ],
                     ),

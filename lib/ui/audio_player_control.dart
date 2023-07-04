@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rj_downloader/config/global/utils/utils.dart';
 import 'package:rj_downloader/data/models/media.dart';
+
+import '../config/global/constants/app_constants.dart';
 
 class AudioPlayerControl extends StatefulWidget {
   const AudioPlayerControl(
@@ -22,9 +23,7 @@ class AudioPlayerControl extends StatefulWidget {
 }
 
 class _AudioPlayerControlState extends State<AudioPlayerControl> {
-  bool isFirstTime = true;
   bool? isAudioInCache;
-  FToast fToast = FToast();
 
   @override
   void initState() {
@@ -53,7 +52,7 @@ class _AudioPlayerControlState extends State<AudioPlayerControl> {
               child: Center(
                 child: CircularProgressIndicator(
                   strokeWidth: 3,
-                  color: Utils.primaryColor,
+                  color: AppConstants.primaryColor,
                 ),
               ),
             );
@@ -62,33 +61,23 @@ class _AudioPlayerControlState extends State<AudioPlayerControl> {
             return IconButton(
               onPressed: () async {
                 widget.audioPlayer.play();
-
-                fToast.init(context);
-
-                if (!isFirstTime) {
-                  return;
-                }
-
-                // Utils.showPlayingStateToast(
-                //     widget.isDownloaded, isAudioInCache!, fToast);
-                isFirstTime = false;
               },
               iconSize: 50,
-              color: Utils.primaryColor,
+              color: AppConstants.primaryColor,
               icon: const Icon(Iconsax.play),
             );
           } else if (processingState != ProcessingState.completed) {
             return IconButton(
               onPressed: widget.audioPlayer.pause,
               iconSize: 50,
-              color: Utils.primaryColor,
+              color: AppConstants.primaryColor,
               icon: const Icon(Iconsax.pause),
             );
           }
           return IconButton(
             onPressed: widget.audioPlayer.load,
             iconSize: 50,
-            color: Utils.primaryColor,
+            color: AppConstants.primaryColor,
             icon: const Icon(Iconsax.play),
           );
         },

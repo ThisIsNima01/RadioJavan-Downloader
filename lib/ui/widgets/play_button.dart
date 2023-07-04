@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:open_file/open_file.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../config/global/utils/utils.dart';
 import '../../data/models/media.dart';
@@ -15,11 +16,9 @@ class PlayButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async {
-        if (await Utils.handlePlayingMediaPermissions()) {
-          await OpenFile.open(
-              '/storage/emulated/0/Music/rj/${Utils.getDirectoryNameByMediaFormat(mediaType)}/${media.artist} - ${media.song}$mediaType');
-        }
+      onTap: () {
+        OpenFile.open(
+            '/storage/emulated/0/Music/rj/${Utils.getDirectoryNameByMediaFormat(mediaType)}/${media.artist} - ${media.song}$mediaType');
       },
       child: SizedBox(
         height: 60,

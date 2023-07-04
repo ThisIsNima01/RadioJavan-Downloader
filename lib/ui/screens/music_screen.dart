@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
@@ -9,7 +10,9 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:just_audio_cache/just_audio_cache.dart';
 import 'package:provider/provider.dart';
+import 'package:rj_downloader/config/global/constants/app_constants.dart';
 import 'package:rj_downloader/config/global/utils/utils.dart';
+import 'package:rj_downloader/config/services/local/audio_player_config.dart';
 import 'package:rj_downloader/data/models/media.dart';
 import 'package:rj_downloader/data/providers/music_state_provider.dart';
 import 'package:rj_downloader/ui/audio_player_control.dart';
@@ -39,6 +42,9 @@ class _MusicScreenState extends State<MusicScreen> {
   bool isDownloaded = false;
   bool isSame = false;
   bool isInCache = false;
+  Directory? tempDir;
+  FToast fToast = FToast();
+  bool isLooping = AudioPlayerConfig.getIsLoop() ?? false;
 
   Stream<PositionData> get _positionDataStream => CombineLatestStream.combine3(
       widget.audioPlayer.positionStream,
@@ -48,7 +54,6 @@ class _MusicScreenState extends State<MusicScreen> {
 
   @override
   void initState() {
-    FToast fToast = FToast();
     fToast.init(context);
     _audioPlayer = widget.audioPlayer;
     ProgressiveAudioSource? audioSource;
@@ -56,7 +61,9 @@ class _MusicScreenState extends State<MusicScreen> {
     isInCache = Utils.isAudioInCache(widget.media.id);
 
     if (!isInCache) {
-      widget.audioPlayer.cacheFile(url: widget.media.audioLink,path: '/storage/emulated/0/Music/rj/cached/cached-${widget.media.id}.mp3');
+      widget.audioPlayer.cacheFile(
+          url: widget.media.audioLink,
+          path: '${AppConstants.appTempDir}/cached-${widget.media.id}.mp3');
     }
 
     if (_audioPlayer.audioSource != null) {
@@ -72,6 +79,8 @@ class _MusicScreenState extends State<MusicScreen> {
           if (isSame) {
             return;
           }
+          Utils.requestPlayingMediaPermissions();
+
           _audioPlayer.setAudioSource(
             AudioSource.file(
               '/storage/emulated/0/Music/rj/audio/${widget.media.artist} - ${widget.media.song}.mp3',
@@ -91,7 +100,7 @@ class _MusicScreenState extends State<MusicScreen> {
           if (isInCache) {
             _audioPlayer.setAudioSource(
               AudioSource.file(
-                '/storage/emulated/0/Music/rj/cached/cached-${widget.media.id}.mp3',
+                '${AppConstants.appTempDir}/cached-${widget.media.id}.mp3',
                 tag: MediaItem(
                   id: widget.media.id.toString(),
                   album: widget.media.artist,
@@ -118,9 +127,6 @@ class _MusicScreenState extends State<MusicScreen> {
         }
       });
     });
-    // if (!isSame) {
-    //   Utils.showPlayingStateToast(isDownloaded, isInCache, fToast);
-    // }
 
     if (!Utils.isMediaPlaying(_audioPlayer)) {
       _audioPlayer.play();
@@ -143,6 +149,40 @@ class _MusicScreenState extends State<MusicScreen> {
         child: Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
+            actions: [
+              IconButton(
+                onPressed: () async {
+                  await AudioPlayerConfig.setIsLoop(!isLooping);
+                  setState(() {
+                    _audioPlayer.setLoopMode(AudioPlayerConfig.getIsLoop()!
+                        ? LoopMode.all
+                        : LoopMode.off);
+                    isLooping = AudioPlayerConfig.getIsLoop()!;
+                  });
+
+                  fToast.showToast(
+                    toastDuration: const Duration(seconds: 3),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        'Loop Mode ${isLooping ? 'Enabled' : 'Disabled'}',
+                        style: const TextStyle(
+                            color: Colors.white, fontFamily: 'pm'),
+                      ),
+                    ),
+                  );
+                },
+                icon:  Icon(
+                  Iconsax.repeat,
+                  color: isLooping ? Colors.amberAccent : null,
+                ),
+              )
+            ],
             leading: IconButton(
                 onPressed: () {
                   Navigator.pop(context);
@@ -152,7 +192,7 @@ class _MusicScreenState extends State<MusicScreen> {
               'Download Media',
               style: TextStyle(fontFamily: 'pb', fontSize: 18),
             ),
-            backgroundColor: Utils.primaryColor,
+            backgroundColor: AppConstants.primaryColor,
           ),
           body: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 0),
@@ -183,45 +223,11 @@ class _MusicScreenState extends State<MusicScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Text(
-                          widget.media.song,
-                          maxLines: 1,
-                          style: const TextStyle(
-                              shadows: [
-                                Shadow(color: Colors.black, blurRadius: 12),
-                              ],
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontFamily: 'pb',
-                              overflow: TextOverflow.ellipsis),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      Text(
-                        widget.media.artist,
-                        maxLines: 1,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            shadows: [
-                              Shadow(color: Colors.black, blurRadius: 12),
-                            ],
-                            fontSize: 14,
-                            overflow: TextOverflow.ellipsis,
-                            fontFamily: 'pm',
-                            color: Colors.white60),
-                      ),
                     ],
                   ),
                 ),
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Container(
                     decoration: const BoxDecoration(
                       color: Colors.white,
@@ -231,11 +237,32 @@ class _MusicScreenState extends State<MusicScreen> {
                       ),
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        const SizedBox(
-                          width: double.infinity,
+                        Column(
+                          children: [
+                            Text(
+                              widget.media.song,
+                              maxLines: 1,
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  fontFamily: 'pb',
+                                  overflow: TextOverflow.ellipsis),
+                            ),
+                            const SizedBox(
+                              height: 4,
+                            ),
+                            Text(
+                              widget.media.artist,
+                              maxLines: 1,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                  fontSize: 12,
+                                  overflow: TextOverflow.ellipsis,
+                                  fontFamily: 'pm',
+                                  color: Colors.black54),
+                            ),
+                          ],
                         ),
                         StreamBuilder<PositionData>(
                           stream: _positionDataStream,
@@ -248,12 +275,12 @@ class _MusicScreenState extends State<MusicScreen> {
                               child: ProgressBar(
                                 barHeight: 6,
                                 baseBarColor:
-                                    Utils.primaryColor.withOpacity(0.3),
+                                    AppConstants.primaryColor.withOpacity(0.3),
                                 bufferedBarColor: isDownloaded
                                     ? Colors.transparent
                                     : Colors.black.withOpacity(0.3),
-                                progressBarColor: Utils.primaryColor,
-                                thumbColor: Utils.primaryColor,
+                                progressBarColor: AppConstants.primaryColor,
+                                thumbColor: AppConstants.primaryColor,
                                 progress:
                                     positionData?.position ?? Duration.zero,
                                 total: positionData?.duration ?? Duration.zero,

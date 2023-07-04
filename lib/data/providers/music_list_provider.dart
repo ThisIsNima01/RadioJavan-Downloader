@@ -4,8 +4,14 @@ import '../models/media.dart';
 
 class MusicListProvider extends ChangeNotifier {
   List _musicList = [];
+  bool _isLoading = false;
 
+  bool get isLoading => _isLoading;
   List get musicList => _musicList;
+
+  set isLoading(bool isLoading) {
+    _isLoading = isLoading;
+  }
 
   set musicList(List musicList) {
     _musicList = musicList

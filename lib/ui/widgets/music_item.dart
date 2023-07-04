@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:rj_downloader/config/global/constants/app_constants.dart';
 import 'package:rj_downloader/data/models/media.dart';
 import 'package:skeletons/skeletons.dart';
 
@@ -85,7 +86,7 @@ class _MusicItemState extends State<MusicItem> {
         alignment: Alignment.topRight,
         children: [
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            margin: const EdgeInsets.all(12),
             height: 100,
             child: Card(
               elevation: 6,
@@ -93,7 +94,7 @@ class _MusicItemState extends State<MusicItem> {
                 borderRadius: BorderRadius.circular(15.0),
                 side: BorderSide(
                   width: 2,
-                  color: Utils.primaryColor,
+                  color: AppConstants.primaryColor,
                 ),
               ),
               child: Padding(
@@ -101,7 +102,7 @@ class _MusicItemState extends State<MusicItem> {
                 child: Row(
                   children: [
                     Card(
-                      elevation: 10,
+                      elevation: 14,
                       color: Colors.transparent,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10),
