@@ -6,6 +6,7 @@ import 'package:just_audio_cache/just_audio_cache.dart';
 import 'package:provider/provider.dart';
 import 'package:rj_downloader/config/global/constants/app_constants.dart';
 import 'package:rj_downloader/config/services/local/audio_player_config.dart';
+import 'package:rj_downloader/ui/screens/saved_media_screen.dart';
 import 'package:rj_downloader/ui/widgets/music_item.dart';
 import 'package:skeletons/skeletons.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -27,7 +28,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    audioPlayer.setLoopMode(AudioPlayerConfig.getIsLoop() ?? false ? LoopMode.all : LoopMode.off);
+    audioPlayer.setLoopMode(
+        AudioPlayerConfig.getIsLoop() ?? false ? LoopMode.all : LoopMode.off);
 
     searchFocusNode.addListener(() {
       setState(() {});
@@ -56,6 +58,18 @@ class _HomeScreenState extends State<HomeScreen> {
           appBar: AppBar(
               backgroundColor: AppConstants.primaryColor,
               actions: [
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            SavedMediaScreen(audioPlayer: audioPlayer),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Iconsax.save_2),
+                ),
                 PopupMenuButton(
                   onSelected: (value) async {
                     var selectedItem = value as CustomPopupMenu;
@@ -161,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 2),
                             child: TextField(
-                              onSubmitted: (value) async{
+                              onSubmitted: (value) async {
                                 if (textEditingController.text.isEmpty) {
                                   return;
                                 }
@@ -172,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                 musicListProvider.musicList =
                                     await ApiService.getMusicFromServer(
-                                    textEditingController.text);
+                                        textEditingController.text);
 
                                 musicListProvider.isLoading = false;
                               },

@@ -2,14 +2,23 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:rj_downloader/config/global/constants/app_constants.dart';
 import 'package:rj_downloader/config/services/local/audio_player_config.dart';
+import 'package:rj_downloader/data/models/media.dart';
+import 'package:rj_downloader/data/providers/saved_media_provider.dart';
 import 'package:rj_downloader/ui/screens/splash_screen.dart';
 import 'package:skeletons/skeletons.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(MediaAdapter());
+  await Hive.openBox<Media>('MediaBox');
+
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Audio playback',
@@ -20,7 +29,16 @@ Future<void> main() async {
 
   Directory tempDir = await getTemporaryDirectory();
   AppConstants.appTempDir = tempDir.path;
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => SavedMediaProvider(),
+        )
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {

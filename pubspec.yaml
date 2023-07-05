@@ -58,6 +58,8 @@ dependencies:
   shared_preferences: ^2.2.0
   video_player: ^2.7.0
   chewie: ^1.6.0+1
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -69,6 +71,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  build_runner: ^2.4.6
+  hive_generator: ^2.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

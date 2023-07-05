@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rj_downloader/config/global/constants/app_constants.dart';
+import 'package:rj_downloader/config/services/local/hive_service.dart';
 import 'package:rj_downloader/data/models/media.dart';
 import 'package:skeletons/skeletons.dart';
 
@@ -54,35 +55,36 @@ class _MusicItemState extends State<MusicItem> {
         }
 
         Get.to(
-            () => MusicScreen(
-                  isAudioDownloaded: isAudioDownloaded,
-                  isVideoDownloaded: isVideoDownloaded,
-                  audioPlayer: widget.audioPlayer,
-                  media: widget.media,
-                  onDownloadComplete: () {
-                    Utils.checkIfFileExistsAlready(widget.media, '.mp3')
-                        .then((result) {
-                      setState(() {
-                        if (result) {
-                          isAudioDownloaded = true;
-                        }
-                      });
-                    });
+          () => MusicScreen(
+            isAudioDownloaded: isAudioDownloaded,
+            isVideoDownloaded: isVideoDownloaded,
+            audioPlayer: widget.audioPlayer,
+            media: widget.media,
+            onDownloadComplete: () {
+              Utils.checkIfFileExistsAlready(widget.media, '.mp3')
+                  .then((result) {
+                setState(() {
+                  if (result) {
+                    isAudioDownloaded = true;
+                  }
+                });
+              });
 
-                    Utils.checkIfFileExistsAlready(widget.media, '.mp4')
-                        .then((result) {
-                      setState(() {
-                        if (result) {
-                          isVideoDownloaded = true;
-                        }
-                      });
-                    });
-                  },
-                ),
-            transition: Transition.size,
-            fullscreenDialog: true,
-            duration: const Duration(milliseconds: 600),
-            curve: Curves.easeIn);
+              Utils.checkIfFileExistsAlready(widget.media, '.mp4')
+                  .then((result) {
+                setState(() {
+                  if (result) {
+                    isVideoDownloaded = true;
+                  }
+                });
+              });
+            },
+          ),
+          transition: Transition.size,
+          fullscreenDialog: true,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeIn,
+        );
       },
       child: Stack(
         alignment: Alignment.topRight,
@@ -201,6 +203,25 @@ class _MusicItemState extends State<MusicItem> {
               ),
             ),
           },
+          Positioned(
+            right: widget.media.videoLink != null ? 110 : 68,
+            child: Card(
+              elevation: 10,
+              color: HiveService.isMediaAlreadySaved(widget.media) ? Colors.amber : null,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: SizedBox(
+                width: 32,
+                height: 32,
+                child: Icon(
+                  Iconsax.save_2,
+                  size: 20,
+                  color: isVideoDownloaded ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+          )
         ],
       ),
     );

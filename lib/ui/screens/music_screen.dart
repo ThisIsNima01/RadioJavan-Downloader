@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:rj_downloader/config/global/constants/app_constants.dart';
 import 'package:rj_downloader/config/global/utils/utils.dart';
 import 'package:rj_downloader/config/services/local/audio_player_config.dart';
+import 'package:rj_downloader/config/services/local/hive_service.dart';
 import 'package:rj_downloader/data/models/media.dart';
 import 'package:rj_downloader/data/providers/music_state_provider.dart';
 import 'package:rj_downloader/ui/audio_player_control.dart';
@@ -22,6 +23,7 @@ import 'package:skeletons/skeletons.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../data/models/position.dart';
+import '../../data/providers/saved_media_provider.dart';
 import '../widgets/option_generator.dart';
 
 class MusicScreen extends StatefulWidget {
@@ -136,7 +138,7 @@ class _MusicScreenState extends State<MusicScreen> {
       });
     });
 
-    if (!Utils.isMediaPlaying(_audioPlayer)) {
+    if (!Utils.isMediaPlaying(_audioPlayer) && !isSame) {
       _audioPlayer.play();
     }
 
@@ -145,6 +147,8 @@ class _MusicScreenState extends State<MusicScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final savedMediaProvider = Provider.of<SavedMediaProvider>(context);
+
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
@@ -158,6 +162,23 @@ class _MusicScreenState extends State<MusicScreen> {
           backgroundColor: Colors.transparent,
           appBar: AppBar(
             actions: [
+              IconButton(
+                onPressed: () async {
+                  if (!HiveService.isMediaAlreadySaved(widget.media)) {
+                    HiveService.addMedia(widget.media);
+                  } else {
+                    await HiveService.deleteMedia(widget.media);
+                  }
+                  savedMediaProvider.notifyListeners();
+                  setState(() {});
+                },
+                icon: Icon(
+                  Iconsax.save_2,
+                  color: HiveService.isMediaAlreadySaved(widget.media)
+                      ? Colors.black
+                      : null,
+                ),
+              ),
               if (widget.media.videoLink != null &&
                   !widget.isVideoDownloaded) ...{
                 IconButton(
@@ -201,7 +222,7 @@ class _MusicScreenState extends State<MusicScreen> {
                 },
                 icon: Icon(
                   Iconsax.repeat,
-                  color: isLooping ? Colors.amberAccent : null,
+                  color: isLooping ? Colors.black : null,
                 ),
               ),
             ],
@@ -440,13 +461,12 @@ class _VidePlayerState extends State<VidePlayer> {
                 SkeletonAvatar(
                   style: SkeletonAvatarStyle(
                     borderRadius: BorderRadius.circular(20),
-
                   ),
                 ),
                 const Center(
                   child: Text(
                     'Loading...',
-                    style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
